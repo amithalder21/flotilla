@@ -361,6 +361,22 @@ Do not attach a public domain to it.
 
 ---
 
+## Disclaimer
+
+Flotilla is provided for **lawful and authorized use only** — testing, monitoring,
+QA, and research on systems you own or have explicit permission to assess. You
+are solely responsible for how you use it, including compliance with all
+applicable laws and regulations and with the terms of service of any system or
+network you interact with.
+
+The software is provided **"as is", without warranty of any kind** (see the
+[LICENSE](LICENSE)). The author and contributors accept **no liability** for any
+misuse, damage, or loss arising from the use of this tool. Using Flotilla for
+unauthorized access, fraud, evasion, or any other unlawful or unethical purpose
+is solely the responsibility of the end user — **not the author**.
+
+---
+
 ## test-lab/ — self-contained demo
 
 `test-lab/` spins up throwaway OpenVPN servers so you can see the isolation
