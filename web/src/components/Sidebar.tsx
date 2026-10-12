@@ -43,15 +43,15 @@ export function Sidebar({
   }[connState.kind];
 
   return (
-    <aside className="flex h-full w-[248px] shrink-0 flex-col border-r border-[#1a1f2c] bg-[#07090e] text-white">
+    <aside className="flex h-full w-[248px] shrink-0 flex-col border-r border-slate-200/90 bg-white text-slate-800 transition-colors dark:border-[#1a1f2c] dark:bg-[#07090e] dark:text-white">
       {/* Brand Header */}
-      <div className="flex items-center gap-3 px-5 pb-4 pt-5 border-b border-[#141822]">
-        <span className="grid size-8 place-items-center rounded-xl bg-emerald-950/60 text-emerald-400 ring-1 ring-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+      <div className="flex items-center gap-3 px-5 pb-4 pt-5 border-b border-slate-100 dark:border-[#141822]">
+        <span className="grid size-8 place-items-center rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/30 shadow-sm dark:bg-emerald-950/60 dark:text-emerald-400 dark:ring-emerald-500/40 dark:shadow-[0_0_12px_rgba(16,185,129,0.2)]">
           <BrandMark />
         </span>
         <div className="leading-tight">
-          <div className="font-mono text-[14px] font-bold tracking-tight text-zinc-100">Flotilla</div>
-          <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Fleet Control Core</div>
+          <div className="font-mono text-[14px] font-bold tracking-tight text-slate-900 dark:text-zinc-100">Flotilla</div>
+          <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Fleet Control Core</div>
         </div>
       </div>
 
@@ -66,15 +66,15 @@ export function Sidebar({
               className={cn(
                 "group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all text-left",
                 active
-                  ? "bg-[#141924] font-bold text-white border border-[#232b3d] shadow-sm"
-                  : "text-zinc-400 hover:bg-[#11141c] hover:text-zinc-200 border border-transparent",
+                  ? "bg-slate-100 font-bold text-slate-950 border border-slate-200/80 shadow-xs dark:bg-[#141924] dark:text-white dark:border-[#232b3d] dark:shadow-sm"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent dark:text-zinc-400 dark:hover:bg-[#11141c] dark:hover:text-zinc-200",
               )}
             >
-              {active && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />}
-              <Icon className={cn("size-4 shrink-0 transition-colors", active ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300")} strokeWidth={2} />
+              {active && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] dark:bg-emerald-400 dark:shadow-[0_0_8px_rgba(16,185,129,0.8)]" />}
+              <Icon className={cn("size-4 shrink-0 transition-colors", active ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 group-hover:text-slate-700 dark:text-zinc-500 dark:group-hover:text-zinc-300")} strokeWidth={2} />
               <span className="tracking-wide uppercase text-[11px] font-semibold">{label}</span>
               {id === "connections" && issues > 0 && (
-                <span className="ml-auto grid h-[18px] min-w-[18px] place-items-center rounded-full bg-rose-950/80 border border-rose-500/50 px-1 font-mono text-[10px] font-bold text-rose-400">
+                <span className="ml-auto grid h-[18px] min-w-[18px] place-items-center rounded-full bg-rose-50 border border-rose-300 px-1 font-mono text-[10px] font-bold text-rose-700 dark:bg-rose-950/80 dark:border-rose-500/50 dark:text-rose-400">
                   {issues}
                 </span>
               )}
@@ -84,8 +84,8 @@ export function Sidebar({
       </nav>
 
       {/* Bottom Status Indicator */}
-      <div className="border-t border-[#141822] px-5 py-3.5">
-        <span className="inline-flex items-center gap-2 font-mono text-xs text-zinc-400">
+      <div className="border-t border-slate-100 px-5 py-3.5 dark:border-[#141822]">
+        <span className="inline-flex items-center gap-2 font-mono text-xs text-slate-600 dark:text-zinc-400">
           <span className={cn("size-2 rounded-full", dotColor)} />
           <span className="uppercase tracking-wider text-[11px] font-medium">{connState.text}</span>
         </span>

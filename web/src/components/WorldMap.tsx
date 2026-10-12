@@ -125,7 +125,7 @@ export function WorldMap({
   return (
     <div className="relative w-full select-none">
       {/* Outer Tactical Radar Container */}
-      <div className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100/60 p-2 shadow-inner dark:border-[#1f2638] dark:bg-gradient-to-b dark:from-[#080b12] dark:via-[#0b0f18] dark:to-[#080b12]">
+      <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70 p-2 shadow-sm dark:border-[#1f2638] dark:bg-gradient-to-b dark:from-[#080b12] dark:via-[#0b0f18] dark:to-[#080b12]">
         {/* Subtle Vignette & Grid Backdrop */}
         <div className="pointer-events-none absolute inset-0 bg-radial-grid opacity-15 dark:opacity-25" />
 
@@ -168,7 +168,7 @@ export function WorldMap({
           {/* High-Contrast Landmass Polygons */}
           <path
             d={map.land}
-            className="fill-slate-200 stroke-slate-300 transition-colors dark:fill-[#101522] dark:stroke-[#243149]"
+            className="fill-slate-200/90 stroke-slate-300/80 transition-colors dark:fill-[#101522] dark:stroke-[#243149]"
             strokeWidth={0.85}
           />
 
@@ -243,15 +243,15 @@ export function WorldMap({
                     width="44"
                     height="18"
                     rx="5"
-                    fill="#0a0d14"
-                    stroke={isHovered ? "#38bdf8" : live ? "#1f3a2d" : "#242d3d"}
                     strokeWidth={isHovered ? 1.5 : 1}
-                    className="transition-all"
-                    style={{
-                      boxShadow: isHovered
-                        ? "0 0 10px rgba(56, 189, 248, 0.5)"
-                        : "0 0 8px rgba(0, 0, 0, 0.6)",
-                    }}
+                    className={cn(
+                      "transition-all shadow-sm",
+                      isHovered
+                        ? "fill-sky-50 stroke-sky-500 dark:fill-[#0c121e] dark:stroke-sky-400"
+                        : live
+                          ? "fill-white stroke-emerald-500/50 dark:fill-[#0a0d14] dark:stroke-[#1f3a2d]"
+                          : "fill-white stroke-slate-300 dark:fill-[#0a0d14] dark:stroke-[#242d3d]"
+                    )}
                   />
                   <text
                     x="22"
@@ -260,7 +260,7 @@ export function WorldMap({
                     dominantBaseline="central"
                     className={cn(
                       "font-mono text-[9px] font-bold uppercase tracking-wider",
-                      isHovered ? "fill-sky-300" : live ? "fill-emerald-400" : "fill-zinc-400"
+                      isHovered ? "fill-sky-700 dark:fill-sky-300" : live ? "fill-emerald-700 dark:fill-emerald-400" : "fill-slate-600 dark:fill-zinc-400"
                     )}
                   >
                     {g.iso.toUpperCase()} {g.count}

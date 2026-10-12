@@ -12,8 +12,8 @@ import { cn } from "@/lib/utils";
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="font-mono text-2xs font-semibold uppercase tracking-wider text-zinc-500">{label}</div>
-      <div className="mt-1 font-mono text-[13px] font-semibold tabular-nums text-zinc-200">{children}</div>
+      <div className="font-mono text-2xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500">{label}</div>
+      <div className="mt-1 font-mono text-[13px] font-semibold tabular-nums text-slate-900 dark:text-zinc-200">{children}</div>
     </div>
   );
 }
@@ -70,10 +70,10 @@ export function ConnectionDrawer({
   const on = !!w && w.exists && w.vpn === "running";
   const s = w ? statusOf(w) : null;
   const banner = {
-    ok: "border-emerald-500/40 bg-emerald-950/40 text-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.15)]",
-    warn: "border-amber-500/40 bg-amber-950/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.15)]",
-    bad: "border-rose-500/40 bg-rose-950/40 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.15)]",
-    muted: "border-[#202737] bg-[#121622] text-zinc-400",
+    ok: "border-emerald-500/30 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-300",
+    warn: "border-amber-500/30 bg-amber-50 text-amber-800 dark:border-amber-500/40 dark:bg-amber-950/40 dark:text-amber-300",
+    bad: "border-rose-500/30 bg-rose-50 text-rose-800 dark:border-rose-500/40 dark:bg-rose-950/40 dark:text-rose-300",
+    muted: "border-slate-200 bg-slate-100 text-slate-700 dark:border-[#202737] dark:bg-[#121622] dark:text-zinc-400",
   };
 
   return (
@@ -85,7 +85,7 @@ export function ConnectionDrawer({
             {s.label}
           </div>
 
-          <div className="grid grid-cols-2 gap-x-5 gap-y-4 rounded-xl border border-[#1f2638] bg-[#0c1018] p-4.5">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4.5 dark:border-[#1f2638] dark:bg-[#0c1018]">
             <Fact label="Exit IP">{w.ipinfo?.ip || "—"}</Fact>
             <Fact label="Location">{w.ipinfo?.country ? `${w.ipinfo.country_iso || ""} ${w.ipinfo.country}` : "—"}</Fact>
             <Fact label="Tunnel Uptime">{on ? fmtUptime(w.started_at) : "—"}</Fact>

@@ -46,15 +46,15 @@ function Shell({ onDeauth }: { onDeauth: () => void }) {
   const m = META[view];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-[#080a0f] text-slate-900 dark:text-zinc-100 transition-colors">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-100/80 text-slate-900 transition-colors dark:bg-[#080a0f] dark:text-zinc-100">
       <Sidebar view={view} setView={setView} issues={issues} connState={connState} />
       <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
-        <header className="shrink-0 z-20 flex h-[58px] items-center justify-between border-b border-slate-200/80 bg-white/80 dark:border-[#1a1f2d] dark:bg-[#080a0f]/90 px-6 sm:px-8 backdrop-blur-md">
+        <header className="shrink-0 z-20 flex h-[58px] items-center justify-between border-b border-slate-200/90 bg-white/90 px-6 sm:px-8 backdrop-blur-md dark:border-[#1a1f2d] dark:bg-[#080a0f]/90">
           <div className="flex items-center gap-2.5">
             <h1 className="font-mono text-sm font-bold tracking-wider uppercase text-slate-900 dark:text-zinc-100">
               {m.title}
             </h1>
-            <span className="hidden font-mono text-xs text-slate-400 dark:text-zinc-500 sm:inline">
+            <span className="hidden font-mono text-xs text-slate-500 dark:text-zinc-500 sm:inline">
               / {m.sub}
             </span>
           </div>

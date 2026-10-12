@@ -6,14 +6,14 @@ import { fmtBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export const EXIT_PALETTE = [
-  { hex: "#10b981", rgb: "16, 185, 129", name: "emerald", text: "text-emerald-400" },
-  { hex: "#f59e0b", rgb: "245, 158, 11", name: "amber", text: "text-amber-400" },
-  { hex: "#38bdf8", rgb: "56, 189, 248", name: "sky", text: "text-sky-400" },
-  { hex: "#a855f7", rgb: "168, 85, 247", name: "purple", text: "text-purple-400" },
-  { hex: "#f43f5e", rgb: "244, 63, 94", name: "rose", text: "text-rose-400" },
-  { hex: "#06b6d4", rgb: "6, 182, 212", name: "cyan", text: "text-cyan-400" },
-  { hex: "#84cc16", rgb: "132, 204, 22", name: "lime", text: "text-lime-400" },
-  { hex: "#ec4899", rgb: "236, 72, 153", name: "pink", text: "text-pink-400" },
+  { hex: "#10b981", rgb: "16, 185, 129", name: "emerald", text: "text-emerald-700 dark:text-emerald-400" },
+  { hex: "#f59e0b", rgb: "245, 158, 11", name: "amber", text: "text-amber-700 dark:text-amber-400" },
+  { hex: "#38bdf8", rgb: "56, 189, 248", name: "sky", text: "text-sky-700 dark:text-sky-400" },
+  { hex: "#a855f7", rgb: "168, 85, 247", name: "purple", text: "text-purple-700 dark:text-purple-400" },
+  { hex: "#f43f5e", rgb: "244, 63, 94", name: "rose", text: "text-rose-700 dark:text-rose-400" },
+  { hex: "#06b6d4", rgb: "6, 182, 212", name: "cyan", text: "text-cyan-700 dark:text-cyan-400" },
+  { hex: "#84cc16", rgb: "132, 204, 22", name: "lime", text: "text-lime-700 dark:text-lime-400" },
+  { hex: "#ec4899", rgb: "236, 72, 153", name: "pink", text: "text-pink-700 dark:text-pink-400" },
 ];
 
 export interface FleetHeroProps {
@@ -253,12 +253,11 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                     cx="0"
                     cy="0"
                     r="9"
-                    fill="#0e1726"
-                    stroke="#38bdf8"
+                    className="fill-slate-100 stroke-sky-500 dark:fill-[#0e1726] dark:stroke-sky-400"
                     strokeWidth="2"
-                    style={{ filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.7))" }}
+                    style={{ filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.4))" }}
                   />
-                  <circle cx="0" cy="0" r="4" fill="#38bdf8" />
+                  <circle cx="0" cy="0" r="4" fill="#0284c7" className="dark:fill-[#38bdf8]" />
                 </g>
               </svg>
             </div>

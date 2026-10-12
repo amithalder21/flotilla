@@ -213,7 +213,7 @@ export function Run() {
         <CardHeader className="justify-between">
           <div className="flex items-center gap-2.5">
             <CardTitle>Recent Job History</CardTitle>
-            <span className="rounded-full border border-[#252c3c] bg-[#141822] px-2.5 py-0.5 font-mono text-[10.5px] text-zinc-400">
+            <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold text-slate-700 dark:border-[#252c3c] dark:bg-[#141822] dark:text-zinc-400">
               LAST 6H
             </span>
           </div>
@@ -221,7 +221,7 @@ export function Run() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+              <tr className="border-b border-slate-200 text-left font-mono text-2xs uppercase tracking-wider text-slate-500 dark:border-[#1d2230] dark:text-zinc-400">
                 <th className="px-5 py-3 font-semibold">Timestamp</th>
                 <th className="px-3 py-3 font-semibold">Command / Script</th>
                 <th className="px-3 py-3 font-semibold">Exits</th>
@@ -231,16 +231,16 @@ export function Run() {
             <tbody>
               {!jobs.length && (
                 <tr>
-                  <td colSpan={4} className="py-8 text-center font-mono text-xs text-zinc-500">
+                  <td colSpan={4} className="py-8 text-center font-mono text-xs text-slate-400 dark:text-zinc-500">
                     No jobs recorded yet — execute a command above to view history.
                   </td>
                 </tr>
               )}
               {jobs.map((j) => (
-                <tr key={j.id} className="border-b border-[#181d28] last:border-0 hover:bg-[#121622]/60 transition-colors">
-                  <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-zinc-400 tabular-nums">{fmtRelative(j.ts)}</td>
-                  <td className="px-3 py-3 font-mono text-xs text-zinc-200">{j.label}</td>
-                  <td className="px-3 py-3 font-mono text-xs text-zinc-400 tabular-nums">{j.targets.length} exits</td>
+                <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/60">
+                  <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-500 tabular-nums dark:text-zinc-400">{fmtRelative(j.ts)}</td>
+                  <td className="px-3 py-3 font-mono text-xs font-semibold text-slate-900 dark:text-zinc-200">{j.label}</td>
+                  <td className="px-3 py-3 font-mono text-xs text-slate-600 tabular-nums dark:text-zinc-400">{j.targets.length} exits</td>
                   <td className="px-5 py-3 text-right">
                     <Badge tone={j.status === "done" ? "ok" : j.status === "running" ? "warn" : "muted"} dot>
                       {j.status}

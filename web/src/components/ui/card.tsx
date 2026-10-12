@@ -19,7 +19,7 @@ export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDiv
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-2.5 border-b border-slate-100 px-5 py-3.5 dark:border-[#1d2230]",
+        "flex flex-wrap items-center gap-2.5 border-b border-slate-200/80 px-5 py-3.5 dark:border-[#1d2230]",
         className
       )}
       {...props}

@@ -37,7 +37,7 @@ export function Donut({ slices, size = 150 }: { slices: DonutSlice[]; size?: num
   return (
     <div className="flex flex-wrap items-center gap-6">
       <svg width={size} height={size} className="shrink-0 -rotate-90">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#161b26" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={r} fill="none" className="stroke-slate-100 dark:stroke-[#161b26]" strokeWidth={stroke} />
         {slices.filter((s) => s.value > 0).map((s, i) => {
           const len = (s.value / total) * circ;
           const el = (
@@ -48,7 +48,7 @@ export function Donut({ slices, size = 150 }: { slices: DonutSlice[]; size?: num
           return el;
         })}
         <text x={cx} y={cy} transform={`rotate(90 ${cx} ${cy})`} textAnchor="middle" dominantBaseline="central"
-          className="fill-white font-mono font-extrabold tabular-nums" style={{ fontSize: 26 }}>
+          className="fill-slate-900 font-mono font-extrabold tabular-nums dark:fill-white" style={{ fontSize: 26 }}>
           {total}
         </text>
       </svg>
@@ -56,9 +56,9 @@ export function Donut({ slices, size = 150 }: { slices: DonutSlice[]; size?: num
         {slices.map((s) => (
           <div key={s.label} className="flex items-center gap-2.5">
             <span className="size-2 shrink-0 rounded-full" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}88` }} />
-            <span className="text-zinc-300 font-medium">{s.label}</span>
-            <span className="ml-auto font-bold tabular-nums text-white">{s.value}</span>
-            <span className="w-10 text-right text-[11px] tabular-nums text-zinc-500">
+            <span className="text-slate-700 font-medium dark:text-zinc-300">{s.label}</span>
+            <span className="ml-auto font-bold tabular-nums text-slate-900 dark:text-white">{s.value}</span>
+            <span className="w-10 text-right text-[11px] tabular-nums text-slate-500 dark:text-zinc-500">
               {Math.round((s.value / total) * 100)}%
             </span>
           </div>
@@ -75,12 +75,12 @@ export function HBars({ rows }: { rows: BarRow[] }) {
     <div className="flex flex-col gap-3 font-mono">
       {rows.map((r) => (
         <div key={r.label} className="grid grid-cols-[130px_1fr_auto] items-center gap-2.5">
-          <span className="truncate text-xs font-semibold text-zinc-200">{r.label}</span>
-          <span className="h-2 overflow-hidden rounded-full border border-[#202737] bg-[#141924]">
+          <span className="truncate text-xs font-semibold text-slate-800 dark:text-zinc-200">{r.label}</span>
+          <span className="h-2 overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-[#202737] dark:bg-[#141924]">
             <span className="block h-full rounded-full transition-[width] duration-500"
               style={{ width: `${Math.max((r.value / max) * 100, 2)}%`, background: r.color || "#38bdf8", boxShadow: `0 0 8px ${r.color || "#38bdf8"}88` }} />
           </span>
-          <span className="whitespace-nowrap text-xs font-medium tabular-nums text-zinc-400">{r.sub}</span>
+          <span className="whitespace-nowrap text-xs font-medium tabular-nums text-slate-600 dark:text-zinc-400">{r.sub}</span>
         </div>
       ))}
     </div>
