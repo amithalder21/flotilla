@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Info, Power, RotateCw, ScrollText, Search, Upload } from "lucide-react";
+import { Globe, Info, Power, RotateCw, ScrollText, Search, Trash2, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { keys, toast, useWorkers } from "@/lib/hooks";
 import type { Worker } from "@/lib/types";
@@ -34,6 +34,9 @@ export function Connections() {
   const [detail, setDetail] = useState<string | null>(null);
   const [logsFor, setLogsFor] = useState<string | null>(null);
   const [busy, setBusy] = useState<Set<string>>(new Set());
+  const [probingIp, setProbingIp] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -97,6 +100,49 @@ export function Connections() {
     refresh();
   }
 
+  async function handleCheckIp() {
+    setProbingIp(true);
+    toast(selected.size ? `Checking IP for ${selected.size} connection(s)…` : "Checking fleet exit IPs…", "info", 1800);
+    try {
+      const targets = selected.size ? [...selected] : undefined;
+      const r = await api<Record<string, any>>("POST", "/api/bulk/ip", targets ? { targets } : {});
+      const count = Object.keys(r).length;
+      const errs = Object.entries(r).filter(([, v]) => v && v.error);
+      if (errs.length) {
+        toast(`Checked ${count} connection(s) (${errs.length} error${errs.length > 1 ? "s" : ""})`, "err");
+      } else {
+        toast(`Refreshed IP for ${count} connection(s)`, "ok");
+      }
+    } catch (e: any) {
+      toast(e.message, "err");
+    } finally {
+      setProbingIp(false);
+      refresh();
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    const targets = selected.size ? [...selected] : undefined;
+    const targetCount = targets ? targets.length : workers.length;
+    try {
+      const r = await api<Record<string, any>>("POST", "/api/bulk/delete", targets ? { targets } : {});
+      const errs = Object.entries(r).filter(([, v]) => v && v.error);
+      if (errs.length) {
+        toast(errs.map(([k, v]) => `${k}: ${v.error}`).join("\n"), "err");
+      } else {
+        toast(`Deleted ${Object.keys(r).length || targetCount} connection(s)`, "ok");
+      }
+      setSelected(new Set());
+    } catch (e: any) {
+      toast(e.message, "err");
+    } finally {
+      setDeleting(false);
+      setConfirmDel(false);
+      refresh();
+    }
+  }
+
   function toggleSel(name: string) {
     setSelected((s) => {
       const n = new Set(s);
@@ -116,15 +162,72 @@ export function Connections() {
               {workers.length} {workers.length === 1 ? "EXIT" : "EXITS"}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()} className="font-mono text-xs">
-              <Upload className="size-3.5" /> Upload
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={probingIp || workers.length === 0}
+              onClick={handleCheckIp}
+              className="font-mono text-xs"
+            >
+              <Globe className={cn("size-3.5", probingIp && "animate-spin text-emerald-500")} />
+              {probingIp ? "Checking IP…" : selected.size ? `Check IP (${selected.size})` : "Check IP"}
             </Button>
-            <Button variant="secondary" size="sm" onClick={() => bulk("stop", "Disconnected")} className="font-mono text-xs">
-              Disconnect all
+
+            {confirmDel ? (
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="danger"
+                  size="sm"
+                  disabled={deleting}
+                  onClick={handleDelete}
+                  className="font-mono text-xs bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
+                >
+                  <Trash2 className="size-3.5" />
+                  {deleting ? "Deleting…" : `Confirm Delete (${selected.size ? selected.size : `All ${workers.length}`})`}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmDel(false)}
+                  className="font-mono text-xs text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={workers.length === 0}
+                onClick={() => {
+                  setConfirmDel(true);
+                  setTimeout(() => setConfirmDel((c) => (c ? false : c)), 5000);
+                }}
+                className="font-mono text-xs text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:text-rose-400 dark:hover:border-rose-900/60 dark:hover:bg-rose-950/30"
+              >
+                <Trash2 className="size-3.5" />
+                {selected.size ? `Delete (${selected.size})` : "Delete"}
+              </Button>
+            )}
+
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={workers.length === 0}
+              onClick={() => bulk("stop", "Disconnected")}
+              className="font-mono text-xs"
+            >
+              {selected.size ? `Disconnect (${selected.size})` : "Disconnect all"}
             </Button>
-            <Button variant="primary" size="sm" onClick={() => bulk("start", "Connected")} className="font-mono text-xs">
-              Connect all
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={workers.length === 0}
+              onClick={() => bulk("start", "Connected")}
+              className="font-mono text-xs"
+            >
+              {selected.size ? `Connect (${selected.size})` : "Connect all"}
             </Button>
           </div>
         </CardHeader>

@@ -583,6 +583,23 @@ def remove_worker(name):
     _rtry(lambda: rdb.hdel("mvpn:proxyoff", name))
 
 
+def delete_profile(name):
+    name = clean_name(name)
+    remove_worker(name)
+    ip_cache.pop(name, None)
+    leak_cache.pop(name, None)
+    stats_cache.pop(name, None)
+    _stat_prev.pop(name, None)
+    heal_state.pop(name, None)
+    unhealthy_since.pop(name, None)
+    tags_del(name)
+    try:
+        os.remove(profile_path(name))
+    except FileNotFoundError:
+        pass
+    return {"deleted": name}
+
+
 # ---------- proxy pool: round-robin front ----------
 # Each exit's gluetun exposes an HTTP proxy on :8888 inside its netns, reachable
 # from the controller over the Docker network at <vpn-container-ip>:8888. The
@@ -1057,11 +1074,9 @@ def api_upload_profiles():
 @app.delete("/api/profiles/<name>")
 def api_delete_profile(name):
     name = clean_name(name)
-    remove_worker(name)
-    try:
-        os.remove(profile_path(name))
-    except FileNotFoundError:
+    if not os.path.exists(profile_path(name)):
         abort(404, f"no profile {name}")
+    delete_profile(name)
     return jsonify(deleted=name)
 
 
@@ -1109,6 +1124,9 @@ def api_bulk(action):
     if action == "start":
         names = [clean_name(t) for t in body["targets"]] if body.get("targets") else list_profiles()
         return jsonify(fan_out(names, lambda n: (start_worker(n), worker_status(n))[1]))
+    if action == "delete":
+        names = [clean_name(t) for t in body["targets"]] if body.get("targets") else list_profiles()
+        return jsonify(fan_out(names, delete_profile))
     names = resolve_targets(body.get("targets"))
     fns = {"stop": stop_worker, "restart": restart_worker, "shutdown": shutdown_worker,
            "remove": remove_worker, "ip": check_ip}
