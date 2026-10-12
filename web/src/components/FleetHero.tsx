@@ -80,8 +80,8 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
   const multiplierText = useMemo(() => {
     const count = onlineWorkers.length;
     if (count === 0) return "NO ACTIVE TUNNELS";
-    if (count === 1) return "1 ACTIVE EGRESS TUNNEL";
-    return `${count}× AGGREGATE EGRESS CAPACITY ⇄`;
+    if (count === 1) return "1× EGRESS CAPACITY";
+    return `${count}× EGRESS CAPACITY ⇄`;
   }, [onlineWorkers]);
 
   // Distribute estimated throughput per worker for visual cues
@@ -105,12 +105,18 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
     return recent;
   }, [rate, rxRate, txRate]);
 
-  // Diagram geometry: dedicated laser canvas with adjacent node badges
-  const svgHeight = Math.max(displayedWorkers.length * 44 + 32, 160);
-  const svgWidth = 160;
-  const startX = 20;
+  // Diagram geometry: dedicated laser canvas with synchronized adjacent node badges
+  const badgeHeight = 34;
+  const badgeGap = 8;
+  const totalBadgesHeight =
+    displayedWorkers.length * badgeHeight +
+    Math.max(0, displayedWorkers.length - 1) * badgeGap;
+  const svgHeight = Math.max(totalBadgesHeight, 160);
+  const svgWidth = 130;
+  const startX = 18;
   const startY = svgHeight / 2;
-  const targetX = svgWidth - 10;
+  const targetX = svgWidth;
+  const badgesTopOffset = (svgHeight - totalBadgesHeight) / 2;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#232838] bg-[#0d1017] text-white shadow-2xl">
@@ -158,13 +164,17 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             {/* Left: SVG Connecting Links with Animated Throughput Pulses */}
-            <div className="w-[140px] sm:w-[160px] shrink-0">
+            <div
+              className="relative shrink-0 select-none z-10"
+              style={{ width: svgWidth, height: svgHeight }}
+            >
               <svg
+                width={svgWidth}
+                height={svgHeight}
                 viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                className="w-full select-none"
-                style={{ height: svgHeight }}
+                className="overflow-visible block"
               >
                 <defs>
                   <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
@@ -181,12 +191,10 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                 {displayedWorkers.map((w, i) => {
                   const palette = EXIT_PALETTE[i % EXIT_PALETTE.length];
                   const destY =
-                    displayedWorkers.length === 1
-                      ? svgHeight / 2
-                      : 22 + i * ((svgHeight - 44) / (displayedWorkers.length - 1));
+                    badgesTopOffset + i * (badgeHeight + badgeGap) + badgeHeight / 2;
 
-                  const controlX1 = startX + (targetX - startX) * 0.45;
-                  const controlX2 = startX + (targetX - startX) * 0.55;
+                  const controlX1 = startX + (targetX - startX) * 0.42;
+                  const controlX2 = startX + (targetX - startX) * 0.72;
                   const pathD = `M ${startX} ${startY} C ${controlX1} ${startY}, ${controlX2} ${destY}, ${targetX} ${destY}`;
 
                   return (
@@ -215,13 +223,13 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                         }}
                       />
 
-                      {/* Exit Node Pin on the right end */}
+                      {/* Exit Node Pin directly at the connector edge */}
                       <circle
                         cx={targetX}
                         cy={destY}
                         r="3.5"
                         fill={palette.hex}
-                        style={{ filter: `drop-shadow(0 0 5px ${palette.hex})` }}
+                        style={{ filter: `drop-shadow(0 0 6px ${palette.hex})` }}
                       />
                     </g>
                   );
@@ -255,10 +263,10 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
               </svg>
             </div>
 
-            {/* Right: Exit Nodes Detail Badges (Dedicated column, no text/laser overlap) */}
+            {/* Right: Exit Nodes Detail Badges (Synchronized geometry, direct connector plug) */}
             <div
-              className="flex flex-1 flex-col justify-between py-1"
-              style={{ height: svgHeight }}
+              className="flex flex-1 flex-col justify-center min-w-0"
+              style={{ height: svgHeight, gap: `${badgeGap}px` }}
             >
               {displayedWorkers.map((w, i) => {
                 const palette = EXIT_PALETTE[i % EXIT_PALETTE.length];
@@ -271,18 +279,15 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                   <div
                     key={w.name}
                     onClick={() => onSelectExit?.(w.name)}
-                    className="group flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-[#1a2130] bg-[#0c1018]/90 px-2.5 py-1 transition-all hover:border-[#2a354c] hover:bg-[#121722]"
+                    style={{ height: `${badgeHeight}px` }}
+                    className="group flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-[#1a2130] bg-[#0c1018]/90 px-2.5 transition-all hover:border-[#2a354c] hover:bg-[#121722]"
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span
-                        className="size-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: palette.hex, boxShadow: `0 0 6px ${palette.hex}` }}
-                      />
                       <span className="truncate font-mono text-[11px] font-bold text-zinc-200 group-hover:text-white">
                         {w.name}
                       </span>
                       {w.ipinfo?.country_iso && (
-                        <span className="shrink-0 rounded bg-[#18202e] px-1 py-0.2 font-mono text-[9px] font-bold uppercase text-zinc-400">
+                        <span className="shrink-0 rounded bg-[#18202e] px-1 py-0.5 font-mono text-[9px] font-bold uppercase text-zinc-400">
                           {w.ipinfo.country_iso}
                         </span>
                       )}
@@ -300,7 +305,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
         {/* ======================================================== */}
         {/* COLUMN 2: Mega Throughput Stat Counter (3 cols)          */}
         {/* ======================================================== */}
-        <div className="flex flex-col items-start justify-center border-y border-[#1f2433] py-4 lg:col-span-3 lg:border-x lg:border-y-0 lg:px-6">
+        <div className="flex flex-col items-start justify-center border-y border-[#1f2433] py-4 lg:col-span-3 lg:border-x lg:border-y-0 lg:px-4 xl:px-5">
           <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-400">
             FLEET THROUGHPUT
           </div>
@@ -326,9 +331,9 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
           </div>
 
           {/* Concurrency Multiplier Pill */}
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[#1f3e30] bg-[#0c2219] px-2.5 py-1 text-[11px] font-mono font-semibold tracking-wide text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.12)] whitespace-nowrap">
+          <div className="mt-4 inline-flex max-w-full items-center gap-1.5 rounded-lg border border-[#1f3e30] bg-[#0c2219] px-2.5 py-1 text-[10.5px] font-mono font-semibold tracking-wide text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.12)]">
             <Zap className="size-3.5 text-emerald-400 shrink-0" />
-            <span>{multiplierText}</span>
+            <span className="truncate">{multiplierText}</span>
           </div>
         </div>
 
@@ -336,16 +341,16 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
         {/* COLUMN 3: Stacked Live Throughput Area Graph (4 cols)    */}
         {/* ======================================================== */}
         <div className="flex flex-col justify-center lg:col-span-4">
-          <div className="mb-2 flex items-center justify-between">
-            <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-              LIVE TRAFFIC · LAST 30S
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+              LIVE TRAFFIC (30S)
             </span>
-            <div className="flex items-center gap-3 font-mono text-[10px] text-zinc-400">
+            <div className="flex items-center gap-2.5 font-mono text-[9.5px] text-zinc-400 whitespace-nowrap">
               <span className="inline-flex items-center gap-1">
-                <span className="size-2 rounded-full bg-emerald-400" /> INGRESS (RX)
+                <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" /> RX
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="size-2 rounded-full bg-amber-400" /> EGRESS (TX)
+                <span className="size-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#fbbf24]" /> TX
               </span>
             </div>
           </div>
@@ -401,15 +406,15 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
           </div>
 
           {/* Bottom Live Data summary */}
-          <div className="mt-2 flex items-center justify-between font-mono text-[10.5px] text-zinc-400 tabular-nums">
-            <span>
+          <div className="mt-2 flex items-center justify-between font-mono text-[10px] text-zinc-400 tabular-nums">
+            <span className="truncate">
               INGRESS <strong className="text-emerald-400">{fmtBytes(rxRate)}/s</strong>
             </span>
-            <span>
+            <span className="truncate">
               EGRESS <strong className="text-amber-400">{fmtBytes(txRate)}/s</strong>
             </span>
-            <span className="text-zinc-400">
-              FLEET TOTAL <strong className="text-zinc-200">{fmtBytes(totalRate)}/s</strong>
+            <span className="truncate text-zinc-400">
+              TOTAL <strong className="text-zinc-200">{fmtBytes(totalRate)}/s</strong>
             </span>
           </div>
         </div>
