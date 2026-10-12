@@ -25,3 +25,6 @@ mac/*.app/
 mac/.swift-cache/
 mac/AppIcon.icns
 mac/icon.iconset/
+.DS_Store
+*.DS_Store
+
