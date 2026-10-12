@@ -46,6 +46,12 @@ func runProcess(executable: String, arguments: [String], currentDirectory: Strin
     }
 }
 
+func generateRandomToken() -> String {
+    var bytes = [UInt8](repeating: 0, count: 24)
+    _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+    return bytes.map { String(format: "%02x", $0) }.joined()
+}
+
 func readTokenFromEnv(at projectDir: String) -> String {
     let envFile = URL(fileURLWithPath: projectDir).appendingPathComponent(".env")
     guard let content = try? String(contentsOf: envFile, encoding: .utf8) else { return "" }
@@ -61,25 +67,88 @@ func readTokenFromEnv(at projectDir: String) -> String {
     return ""
 }
 
+func copyStackFromBundleIfNeeded(to targetDir: String) {
+    guard let bundleStackURL = Bundle.main.resourceURL?.appendingPathComponent("stack"),
+          FileManager.default.fileExists(atPath: bundleStackURL.path) else {
+        return
+    }
+    
+    let fm = FileManager.default
+    if !fm.fileExists(atPath: targetDir) {
+        try? fm.createDirectory(atPath: targetDir, withIntermediateDirectories: true)
+    }
+    
+    // Synchronize compose.yaml, controller, and worker-app from bundle
+    let itemsToCopy = ["compose.yaml", "controller", "worker-app"]
+    for item in itemsToCopy {
+        let src = bundleStackURL.appendingPathComponent(item).path
+        let dst = URL(fileURLWithPath: targetDir).appendingPathComponent(item).path
+        if fm.fileExists(atPath: src) {
+            if fm.fileExists(atPath: dst) {
+                try? fm.removeItem(atPath: dst)
+            }
+            try? fm.copyItem(atPath: src, toPath: dst)
+        }
+    }
+}
+
+func ensureEnvFile(at projectDir: String) -> String {
+    let envURL = URL(fileURLWithPath: projectDir).appendingPathComponent(".env")
+    let fm = FileManager.default
+    
+    // 1. If .env already exists, read it
+    if fm.fileExists(atPath: envURL.path) {
+        let existingToken = readTokenFromEnv(at: projectDir)
+        if !existingToken.isEmpty {
+            return existingToken
+        }
+    }
+    
+    // 2. If development .env exists, preserve and copy it
+    let devEnv = "/Users/amithalder/Desktop/vpn-controller/.env"
+    if fm.fileExists(atPath: devEnv),
+       let content = try? String(contentsOfFile: devEnv, encoding: .utf8),
+       !content.isEmpty {
+        try? content.write(to: envURL, atomically: true, encoding: .utf8)
+        let token = readTokenFromEnv(at: projectDir)
+        if !token.isEmpty { return token }
+    }
+    
+    // 3. Automatically generate a brand new secure 24-byte random token
+    let newToken = generateRandomToken()
+    let envContent = "CONTROL_TOKEN=\(newToken)\n"
+    try? envContent.write(to: envURL, atomically: true, encoding: .utf8)
+    return newToken
+}
+
 func detectProjectPath() -> String {
+    // 1. Explicit environment override
+    if let envPath = ProcessInfo.processInfo.environment["FLOTILLA_DIR"],
+       FileManager.default.fileExists(atPath: envPath + "/compose.yaml") {
+        return envPath
+    }
+    
+    // 2. User preference override
     if let saved = UserDefaults.standard.string(forKey: "FlotillaProjectPath"),
        FileManager.default.fileExists(atPath: saved + "/compose.yaml") {
         return saved
     }
     
-    let knownPaths = [
-        "/Users/amithalder/Desktop/vpn-controller",
-        NSHomeDirectory() + "/Desktop/vpn-controller",
-        FileManager.default.currentDirectoryPath,
-        Bundle.main.bundleURL.deletingLastPathComponent().path
-    ]
-    
-    for path in knownPaths {
-        if FileManager.default.fileExists(atPath: path + "/compose.yaml") {
-            return path
-        }
+    // 3. Development folder fallback (if running directly inside git repo)
+    let cwd = FileManager.default.currentDirectoryPath
+    if cwd.contains("vpn-controller") && FileManager.default.fileExists(atPath: cwd + "/compose.yaml") {
+        return cwd
     }
-    return FileManager.default.currentDirectoryPath
+    
+    // 4. Default: Standard macOS Application Support directory
+    let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        .appendingPathComponent("Flotilla")
+    let appSupportPath = appSupportURL.path
+    
+    // Auto-initialize stack files inside Application Support from app bundle
+    copyStackFromBundleIfNeeded(to: appSupportPath)
+    
+    return appSupportPath
 }
 
 // MARK: - App Delegate
@@ -97,7 +166,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         projectPath = detectProjectPath()
-        controlToken = readTokenFromEnv(at: projectPath)
+        controlToken = ensureEnvFile(at: projectPath)
         
         setupMenu()
         setupWindow()

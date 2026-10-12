@@ -66,6 +66,25 @@ if [ -f "AppIcon.icns" ]; then
   cp AppIcon.icns "${RESOURCES_DIR}/AppIcon.icns"
 fi
 
+# 5. Bundle self-contained Docker stack into Resources/stack
+info "Bundling self-contained Docker stack into Resources/stack..."
+STACK_DIR="${RESOURCES_DIR}/stack"
+rm -rf "${STACK_DIR}"
+mkdir -p "${STACK_DIR}/controller" "${STACK_DIR}/worker-app"
+
+# Compose file configured for standalone controller
+sed 's|dockerfile: controller/Dockerfile|dockerfile: controller/Dockerfile.standalone|g' ../compose.yaml > "${STACK_DIR}/compose.yaml"
+
+# Copy controller runtime, precompiled web UI static assets, and examples
+cp ../controller/app.py "${STACK_DIR}/controller/app.py"
+cp ../controller/Dockerfile.standalone "${STACK_DIR}/controller/Dockerfile.standalone"
+cp -R ../controller/examples "${STACK_DIR}/controller/examples"
+cp -R ../controller/static "${STACK_DIR}/controller/static"
+
+# Copy worker app image specification
+cp ../worker-app/Dockerfile "${STACK_DIR}/worker-app/Dockerfile"
+ok "Self-contained Docker stack bundled (${STACK_DIR})"
+
 # 5. Ad-hoc codesign
 info "Applying ad-hoc code signature..."
 codesign --force --deep --sign - "${BUNDLE_DIR}" >/dev/null 2>&1 || true
