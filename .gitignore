@@ -18,3 +18,10 @@ __pycache__/
 
 # built UI (compiled from web/ by Docker or `npm run build`)
 controller/static/
+
+# macOS app build outputs
+*.dmg
+mac/*.app/
+mac/.swift-cache/
+mac/AppIcon.icns
+mac/icon.iconset/
