@@ -36,7 +36,7 @@ export function Sheet({
               <span className="size-2 rounded-full bg-[#27c93f]" />
             </div>
             <Dialog.Title className="ml-1 font-mono text-sm font-bold text-slate-900 dark:text-zinc-100">{title}</Dialog.Title>
-            {meta && <span className="font-mono text-xs text-slate-500 tabular-nums dark:text-zinc-400">· {meta}</span>}
+            {meta && <div className="flex items-center">{meta}</div>}
             <div className="flex-1" />
             <Dialog.Close className="inline-flex h-7 items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 font-mono text-xs text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-900 shadow-xs dark:border-[#232a3b] dark:bg-[#121622] dark:text-zinc-400 dark:hover:border-[#2f3950] dark:hover:text-zinc-200">
               <X className="size-3.5" /> Close
