@@ -223,16 +223,22 @@ export function Probe() {
       />
 
       <Card>
-        <CardHeader>
-          <CardTitle>Results</CardTitle>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground tabular">{summary}</span>
+        <CardHeader className="justify-between">
+          <div className="flex items-center gap-2.5">
+            <CardTitle>Probe Consensus Matrix</CardTitle>
+            {summary && (
+              <span className="rounded-full border border-[#232838] bg-[#141822] px-2.5 py-0.5 font-mono text-[11px] font-semibold text-zinc-300 tabular-nums">
+                {summary}
+              </span>
+            )}
+          </div>
         </CardHeader>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-border/70 text-left text-2xs uppercase tracking-wider text-muted-foreground">
-                {["Exit", "Country", "Status", "Size", "Type", "Server", "Body hash", "Time", "Diff"].map((h) => (
-                  <th key={h} className={cn("px-2 py-2.5 font-semibold", h === "Time" && "text-right")}>
+              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+                {["Exit", "Country", "Status", "Payload Size", "Content Type", "Server Header", "Hash", "Latency", "Diff Status"].map((h) => (
+                  <th key={h} className={cn("px-3 py-3 font-semibold", h === "Latency" && "text-right")}>
                     {h}
                   </th>
                 ))}
@@ -241,8 +247,8 @@ export function Probe() {
             <tbody>
               {!allRows.length && (
                 <tr>
-                  <td colSpan={9}>
-                    <EmptyState>Enter a URL and run it across the fleet to see per-exit responses here.</EmptyState>
+                  <td colSpan={9} className="py-10 text-center font-mono text-xs text-zinc-500">
+                    Enter a target URL and trigger dispatch above to inspect multi-exit responses.
                   </td>
                 </tr>
               )}
@@ -251,26 +257,26 @@ export function Probe() {
                   key={r.exit + i}
                   onClick={() => setOpen({ ...r, ...({} as any) })}
                   className={cn(
-                    "cursor-pointer border-b border-border/60 text-[13px] transition-colors last:border-0 hover:bg-accent/5",
-                    r.diff === "outlier" && "bg-warn-bg/40",
-                    r.error && "text-muted-foreground",
+                    "cursor-pointer border-b border-[#181d28] text-xs transition-colors last:border-0 hover:bg-[#121622]/80",
+                    r.diff === "outlier" && "bg-amber-950/20 border-l-2 border-l-amber-500",
+                    r.error && "text-zinc-500",
                   )}
                 >
-                  <td className="px-2 py-2.5 font-mono">{r.exit}</td>
-                  <td className="px-2 py-2.5"><CountryChip iso={r.country_iso} country={r.country} /></td>
+                  <td className="px-3 py-3 font-mono font-bold text-zinc-200">{r.exit}</td>
+                  <td className="px-3 py-3"><CountryChip iso={r.country_iso} country={r.country} /></td>
                   {r.error ? (
-                    <td colSpan={5} className="px-2 py-2.5 text-muted-foreground">{r.error}</td>
+                    <td colSpan={5} className="px-3 py-3 font-mono text-rose-400 text-xs">{r.error}</td>
                   ) : (
                     <>
-                      <td className="px-2 py-2.5 tabular">{r.status}</td>
-                      <td className="px-2 py-2.5 tabular">{fmtBytes(r.size)}</td>
-                      <td className="px-2 py-2.5 text-muted-foreground">{r.ctype}</td>
-                      <td className="px-2 py-2.5 text-muted-foreground">{r.server}</td>
-                      <td className="px-2 py-2.5 font-mono text-muted-foreground">{r.hash}</td>
+                      <td className="px-3 py-3 font-mono font-bold tabular-nums text-zinc-100">{r.status}</td>
+                      <td className="px-3 py-3 font-mono tabular-nums text-zinc-300">{fmtBytes(r.size)}</td>
+                      <td className="px-3 py-3 font-mono text-zinc-400">{r.ctype || "—"}</td>
+                      <td className="px-3 py-3 font-mono text-zinc-400">{r.server || "—"}</td>
+                      <td className="px-3 py-3 font-mono text-[11px] text-zinc-500">{r.hash || "—"}</td>
                     </>
                   )}
-                  <td className="px-2 py-2.5 text-right tabular">{r.ms != null ? `${r.ms}ms` : ""}</td>
-                  <td className="px-2 py-2.5"><DiffBadge diff={r.diff} /></td>
+                  <td className="px-3 py-3 text-right font-mono font-semibold tabular-nums text-zinc-200">{r.ms != null ? `${r.ms}ms` : "—"}</td>
+                  <td className="px-3 py-3"><DiffBadge diff={r.diff} /></td>
                 </tr>
               ))}
             </tbody>

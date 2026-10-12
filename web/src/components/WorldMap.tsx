@@ -52,19 +52,42 @@ export function WorldMap({ workers }: { workers: Worker[] }) {
         role="img"
         aria-label="World map of exit locations"
       >
-        <path d={map.land} className="fill-muted stroke-border" strokeWidth={0.5} />
+        <path d={map.land} fill="#141926" stroke="#263147" strokeWidth={0.75} />
         {located.map((g) => {
           const [x, y] = map.cents[g.iso];
           const live = g.online > 0;
-          const color = live ? "hsl(var(--accent))" : "hsl(var(--muted-foreground))";
+          const color = live ? "#10b981" : "#4b5563";
           const r = Math.min(5 + g.count * 2.2, 13);
           return (
             <g key={g.iso}>
-              {live && <circle cx={x} cy={y} r={r + 5} fill={color} opacity={0.14} />}
-              <circle cx={x} cy={y} r={r} fill={color} opacity={0.92} />
+              {live && (
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={r + 8}
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                  className="animate-ping"
+                  style={{ animationDuration: "3s" }}
+                />
+              )}
+              <circle
+                cx={x}
+                cy={y}
+                r={r}
+                fill={color}
+                style={live ? { filter: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.8))" } : undefined}
+              />
               {g.count > 1 && (
-                <text x={x} y={y} textAnchor="middle" dominantBaseline="central"
-                  style={{ fontSize: 11, fontWeight: 700, paintOrder: "stroke" }} className="fill-white">
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  className="fill-white font-mono font-bold text-[10px]"
+                >
                   {g.count}
                 </text>
               )}
@@ -72,15 +95,15 @@ export function WorldMap({ workers }: { workers: Worker[] }) {
           );
         })}
       </svg>
-      <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-border/70 pt-3 text-xs text-muted-foreground">
+      <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-[#1d2230] pt-3 text-xs font-mono text-zinc-400">
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-[9px] rounded-full" style={{ background: "hsl(var(--accent))" }} /> Online exit
+          <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" /> Active egress
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-[9px] rounded-full" style={{ background: "hsl(var(--muted-foreground))" }} /> Offline
+          <span className="size-2 rounded-full bg-zinc-600" /> Offline
         </span>
-        <span className="ml-auto tabular">
-          {located.length ? `${located.length} ${located.length === 1 ? "country" : "countries"}` : "No located exits yet — connect a tunnel to see it here."}
+        <span className="ml-auto tabular-nums text-zinc-300">
+          {located.length ? `${located.length} ${located.length === 1 ? "REGION" : "REGIONS"} LOCATED` : "No located exits"}
         </span>
       </div>
     </div>

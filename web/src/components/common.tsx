@@ -4,22 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import type { Worker } from "@/lib/types";
 
 export function CountryChip({ iso, country }: { iso?: string | null; country?: string | null }) {
-  if (!iso && !country) return <span className="text-muted-foreground">—</span>;
+  if (!iso && !country) return <span className="text-zinc-500 font-mono">—</span>;
   return (
     <span className="inline-flex items-center gap-2">
       {iso && (
-        <span className="inline-grid h-5 min-w-[28px] place-items-center rounded-[5px] border border-border bg-muted px-1.5 font-mono text-[10.5px] font-bold uppercase leading-none tracking-wider text-muted-foreground">
-          {iso}
+        <span className="inline-grid h-5 min-w-[30px] place-items-center rounded-[5px] border border-[#262e40] bg-[#121622] px-1.5 font-mono text-[10px] font-bold uppercase leading-none tracking-wider text-zinc-300">
+          [{iso}]
         </span>
       )}
-      {country && <span className="text-[13px]">{country}</span>}
+      {country && <span className="text-[12.5px] text-zinc-200 font-medium">{country}</span>}
     </span>
   );
 }
 
 export function EmptyState({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("py-8 text-center text-[13px] text-muted-foreground", className)}>{children}</div>
+    <div className={cn("py-10 text-center font-mono text-xs text-zinc-400", className)}>{children}</div>
   );
 }
 

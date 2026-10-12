@@ -108,23 +108,27 @@ export function Run() {
     p.state === "running" ? "running…" : p.code === "124" ? "timed out" : p.code === "143" ? "cancelled" : p.code === "0" ? "exit 0" : `exit ${p.code}`;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <Card>
-        <CardHeader>
-          <CardTitle>Run script / command</CardTitle>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground tabular">{online} online targets</span>
+        <CardHeader className="justify-between">
+          <div className="flex items-center gap-2.5">
+            <CardTitle>Fleet Command Execution</CardTitle>
+            <span className="rounded-full border border-sky-500/30 bg-sky-950/40 px-2.5 py-0.5 font-mono text-[11px] font-bold text-sky-400 tabular-nums">
+              {online} {online === 1 ? "TARGET ONLINE" : "TARGETS ONLINE"}
+            </span>
+          </div>
         </CardHeader>
-        <CardBody className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <Select value={script} onChange={(e) => setScript(e.target.value)} className="w-56">
-              <option value="">Inline command ↓</option>
+        <CardBody className="space-y-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <Select value={script} onChange={(e) => setScript(e.target.value)} className="w-60 font-mono text-xs">
+              <option value="">Inline bash command ↓</option>
               {scripts.map((s) => (
                 <option key={s} value={s}>
                   {s}
                 </option>
               ))}
             </Select>
-            <label className="flex items-center gap-2 text-[12.5px] text-muted-foreground">
+            <label className="flex items-center gap-2 font-mono text-xs text-zinc-400">
               Timeout
               <input
                 type="number"
@@ -132,13 +136,13 @@ export function Run() {
                 max={3600}
                 value={timeout}
                 onChange={(e) => setTimeoutS(+e.target.value || 60)}
-                className="h-9 w-20 rounded-md border border-input bg-background px-2 text-sm"
+                className="h-9 w-20 rounded-xl border border-[#232838] bg-[#090c12] px-2 text-xs text-zinc-200 font-mono tabular-nums"
               />
               s
             </label>
             <div className="flex-1" />
-            <Button variant="primary" onClick={run} disabled={!online}>
-              <Play /> Run across fleet
+            <Button variant="primary" onClick={run} disabled={!online} className="font-mono text-xs uppercase tracking-wider">
+              <Play className="size-3.5" /> Execute across fleet
             </Button>
           </div>
           {!script && (
@@ -147,6 +151,7 @@ export function Run() {
               onChange={(e) => setCmd(e.target.value)}
               spellCheck={false}
               placeholder="#!/bin/bash&#10;curl -s https://ifconfig.co/json"
+              className="min-h-[110px] font-mono text-xs leading-relaxed text-zinc-200"
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                   e.preventDefault();
@@ -160,29 +165,42 @@ export function Run() {
 
       {paneList.length > 0 && (
         <Card>
-          <CardHeader>
-            <CardTitle>Live output</CardTitle>
-            <CardSub>{jobState}</CardSub>
-            <div className="flex-1" />
+          <CardHeader className="justify-between">
+            <div className="flex items-center gap-2.5">
+              <CardTitle>Live Terminal Stream</CardTitle>
+              <CardSub>{jobState}</CardSub>
+            </div>
             {jobState !== "finished" && (
-              <Button size="sm" variant="danger" onClick={cancel}>
-                <Square /> Cancel
+              <Button size="xs" variant="danger" onClick={cancel} className="font-mono text-xs">
+                <Square className="size-3" /> Cancel execution
               </Button>
             )}
           </CardHeader>
           <CardBody>
-            <div className="grid gap-3 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               {paneList.map((p) => (
-                <div key={p.worker} className="flex flex-col overflow-hidden rounded-xl border border-border bg-[#0c0e12]">
-                  <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[12.5px]">
-                    <span className="font-mono font-semibold text-white">{p.worker}</span>
-                    <span className="flex-1" />
-                    <span className={cn("text-[11.5px]", p.state === "done" ? "text-[#3fb973]" : p.state === "err" ? "text-[#ec6a5e]" : "text-[#8a93a1]")}>
+                <div key={p.worker} className="flex flex-col overflow-hidden rounded-xl border border-[#222738] bg-[#07090e] shadow-xl">
+                  {/* macOS Terminal Title Bar */}
+                  <div className="flex items-center justify-between border-b border-[#1b202e] bg-[#0d1017] px-3.5 py-2">
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 opacity-60">
+                        <span className="size-2 rounded-full bg-[#ff5f56]" />
+                        <span className="size-2 rounded-full bg-[#ffbd2e]" />
+                        <span className="size-2 rounded-full bg-[#27c93f]" />
+                      </div>
+                      <span className="font-mono text-xs font-bold text-zinc-200 ml-1.5">{p.worker}</span>
+                    </div>
+                    <span className={cn(
+                      "rounded-full px-2 py-0.2 font-mono text-[10px] font-bold uppercase tracking-wider border",
+                      p.state === "done" ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-400" :
+                      p.state === "err" ? "border-rose-500/40 bg-rose-950/40 text-rose-400" :
+                      "border-amber-500/40 bg-amber-950/40 text-amber-300 animate-pulse"
+                    )}>
                       {stateLabel(p)}
                     </span>
                   </div>
-                  <pre className="max-h-64 min-h-[60px] overflow-auto px-3 py-2 font-mono text-[12px] leading-relaxed text-[#d4dae2]">
-                    {p.lines || (p.state === "running" ? "waiting for output…" : "(no output)")}
+                  <pre className="max-h-64 min-h-[70px] overflow-auto p-3.5 font-mono text-xs leading-relaxed text-[#c7d2df] selection:bg-emerald-500/30">
+                    {p.lines || (p.state === "running" ? "streaming stdout / stderr…" : "(no output)")}
                   </pre>
                 </div>
               ))}
@@ -192,34 +210,38 @@ export function Run() {
       )}
 
       <Card>
-        <CardHeader>
-          <CardTitle>Recent jobs</CardTitle>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">last 6h</span>
+        <CardHeader className="justify-between">
+          <div className="flex items-center gap-2.5">
+            <CardTitle>Recent Job History</CardTitle>
+            <span className="rounded-full border border-[#252c3c] bg-[#141822] px-2.5 py-0.5 font-mono text-[10.5px] text-zinc-400">
+              LAST 6H
+            </span>
+          </div>
         </CardHeader>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-border/70 text-left text-2xs uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-2.5 font-semibold">When</th>
-                <th className="px-2 py-2.5 font-semibold">Script / command</th>
-                <th className="px-2 py-2.5 font-semibold">Targets</th>
-                <th className="px-2 py-2.5 font-semibold">Status</th>
+              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+                <th className="px-5 py-3 font-semibold">Timestamp</th>
+                <th className="px-3 py-3 font-semibold">Command / Script</th>
+                <th className="px-3 py-3 font-semibold">Exits</th>
+                <th className="px-5 py-3 text-right font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>
               {!jobs.length && (
                 <tr>
-                  <td colSpan={4}>
-                    <EmptyState>No jobs yet — run a script or command to see results here.</EmptyState>
+                  <td colSpan={4} className="py-8 text-center font-mono text-xs text-zinc-500">
+                    No jobs recorded yet — execute a command above to view history.
                   </td>
                 </tr>
               )}
               {jobs.map((j) => (
-                <tr key={j.id} className="border-b border-border/60 last:border-0">
-                  <td className="whitespace-nowrap px-4 py-2.5 text-[12.5px] text-muted-foreground tabular">{fmtRelative(j.ts)}</td>
-                  <td className="px-2 py-2.5 font-mono text-[12.5px]">{j.label}</td>
-                  <td className="px-2 py-2.5 text-[12.5px] text-muted-foreground tabular">{j.targets.length}</td>
-                  <td className="px-2 py-2.5">
+                <tr key={j.id} className="border-b border-[#181d28] last:border-0 hover:bg-[#121622]/60 transition-colors">
+                  <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-zinc-400 tabular-nums">{fmtRelative(j.ts)}</td>
+                  <td className="px-3 py-3 font-mono text-xs text-zinc-200">{j.label}</td>
+                  <td className="px-3 py-3 font-mono text-xs text-zinc-400 tabular-nums">{j.targets.length} exits</td>
+                  <td className="px-5 py-3 text-right">
                     <Badge tone={j.status === "done" ? "ok" : j.status === "running" ? "warn" : "muted"} dot>
                       {j.status}
                     </Badge>

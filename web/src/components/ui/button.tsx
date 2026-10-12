@@ -9,13 +9,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
+          "bg-emerald-600 hover:bg-emerald-500 text-white font-medium shadow-[0_0_14px_rgba(16,185,129,0.25)] border border-emerald-500/50",
         secondary:
-          "border border-border bg-card text-foreground shadow-[0_1px_1.5px_rgba(16,24,40,.04)] hover:bg-muted hover:border-accent/35",
-        ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
+          "border border-[#252c3e] bg-[#141822] text-zinc-200 hover:bg-[#1a202e] hover:border-[#343e56] hover:text-white shadow-sm",
+        ghost: "text-zinc-400 hover:bg-[#161b26] hover:text-zinc-200",
         danger:
-          "border border-border bg-card text-bad hover:bg-bad-bg hover:border-bad",
-        accent: "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90",
+          "border border-rose-500/40 bg-rose-950/40 text-rose-300 hover:bg-rose-900/60 hover:text-white hover:border-rose-500/70",
+        accent:
+          "bg-sky-600 hover:bg-sky-500 text-white font-medium shadow-[0_0_14px_rgba(56,189,248,0.25)] border border-sky-400/40",
       },
       size: {
         default: "h-9 px-3.5",

@@ -36,20 +36,27 @@ export function Sidebar({
   issues: number;
   connState: { kind: "live" | "err" | "wait"; text: string };
 }) {
-  const dotColor = { live: "bg-ok", err: "bg-bad", wait: "bg-warn" }[connState.kind];
+  const dotColor = {
+    live: "bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]",
+    err: "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]",
+    wait: "bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.8)]",
+  }[connState.kind];
+
   return (
-    <aside className="sticky top-0 flex h-screen w-[244px] shrink-0 flex-col bg-rail text-rail-foreground">
-      <div className="flex items-center gap-2.5 px-5 pb-4 pt-5">
-        <span className="grid size-8 place-items-center rounded-[10px] bg-white/10 text-white ring-1 ring-white/10">
+    <aside className="sticky top-0 flex h-screen w-[248px] shrink-0 flex-col border-r border-[#1a1f2c] bg-[#07090e] text-white">
+      {/* Brand Header */}
+      <div className="flex items-center gap-3 px-5 pb-4 pt-5 border-b border-[#141822]">
+        <span className="grid size-8 place-items-center rounded-xl bg-emerald-950/60 text-emerald-400 ring-1 ring-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
           <BrandMark />
         </span>
         <div className="leading-tight">
-          <div className="text-[15px] font-bold tracking-tight">Flotilla</div>
-          <div className="text-2xs font-medium text-rail-muted">Fleet control plane</div>
+          <div className="font-mono text-[14px] font-bold tracking-tight text-zinc-100">Flotilla</div>
+          <div className="font-mono text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Fleet Control Core</div>
         </div>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-0.5 px-3 py-2">
+      {/* Nav links */}
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-3 font-mono text-xs">
         {NAV.map(({ id, label, icon: Icon }) => {
           const active = view === id;
           return (
@@ -57,15 +64,17 @@ export function Sidebar({
               key={id}
               onClick={() => setView(id)}
               className={cn(
-                "group relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13.5px] font-medium transition-colors",
-                active ? "bg-white/10 text-white" : "text-rail-muted hover:bg-rail-hover hover:text-rail-foreground",
+                "group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all text-left",
+                active
+                  ? "bg-[#141924] font-bold text-white border border-[#232b3d] shadow-sm"
+                  : "text-zinc-400 hover:bg-[#11141c] hover:text-zinc-200 border border-transparent",
               )}
             >
-              {active && <span className="absolute left-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-r-full bg-rail-active" />}
-              <Icon className={cn("size-[17px] shrink-0", active ? "text-rail-active" : "")} strokeWidth={2} />
-              <span>{label}</span>
+              {active && <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />}
+              <Icon className={cn("size-4 shrink-0 transition-colors", active ? "text-emerald-400" : "text-zinc-500 group-hover:text-zinc-300")} strokeWidth={2} />
+              <span className="tracking-wide uppercase text-[11px] font-semibold">{label}</span>
               {id === "connections" && issues > 0 && (
-                <span className="ml-auto grid h-[18px] min-w-[18px] place-items-center rounded-full bg-bad px-1.5 text-[11px] font-bold text-white">
+                <span className="ml-auto grid h-[18px] min-w-[18px] place-items-center rounded-full bg-rose-950/80 border border-rose-500/50 px-1 font-mono text-[10px] font-bold text-rose-400">
                   {issues}
                 </span>
               )}
@@ -74,10 +83,11 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-white/10 px-4 py-3.5">
-        <span className="inline-flex items-center gap-2 text-xs text-rail-muted">
+      {/* Bottom Status Indicator */}
+      <div className="border-t border-[#141822] px-5 py-3.5">
+        <span className="inline-flex items-center gap-2 font-mono text-xs text-zinc-400">
           <span className={cn("size-2 rounded-full", dotColor)} />
-          {connState.text}
+          <span className="uppercase tracking-wider text-[11px] font-medium">{connState.text}</span>
         </span>
       </div>
     </aside>

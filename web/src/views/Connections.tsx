@@ -107,40 +107,46 @@ export function Connections() {
   const allSel = rows.length > 0 && rows.every((w) => selected.has(w.name));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <Card className="overflow-hidden">
-        <CardHeader>
-          <CardTitle>Connections</CardTitle>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground tabular">
-            {workers.length}
-          </span>
-          <div className="flex-1" />
-          <Button variant="primary" size="sm" onClick={() => bulk("start", "Connected")}>
-            Connect all
-          </Button>
+        <CardHeader className="justify-between">
+          <div className="flex items-center gap-2.5">
+            <CardTitle>Fleet Connections</CardTitle>
+            <span className="rounded-full border border-[#262e40] bg-[#121622] px-2.5 py-0.5 font-mono text-[11px] font-bold text-zinc-300 tabular-nums">
+              {workers.length} {workers.length === 1 ? "EXIT" : "EXITS"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={() => bulk("stop", "Disconnected")}>
+              Disconnect all
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => bulk("start", "Connected")}>
+              Connect all
+            </Button>
+          </div>
         </CardHeader>
 
-        {/* filters */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border/70 bg-muted/40 px-4 py-2.5">
-          <div className="relative min-w-[200px] flex-1">
-            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        {/* Filters & Search Deck */}
+        <div className="flex flex-wrap items-center gap-3 border-b border-[#1d2230] bg-[#090c12] px-5 py-3">
+          <div className="relative min-w-[220px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-zinc-500" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search name, IP, country, org…"
-              className="h-8 bg-card pl-8 text-[13px]"
+              placeholder="Search by name, IP, country, org or tag…"
+              className="h-8 pl-8 text-xs font-mono"
             />
           </div>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1.5 font-mono text-xs">
             {FILTERS.map((f) => (
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
                 className={cn(
-                  "rounded-full border px-3 py-1 text-[12.5px] transition-colors",
+                  "rounded-lg border px-3 py-1 font-semibold uppercase tracking-wider transition-colors",
                   filter === f.id
-                    ? "border-accent bg-accent text-accent-foreground"
-                    : "border-border bg-card text-muted-foreground hover:text-foreground",
+                    ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.15)]"
+                    : "border-[#202737] bg-[#121622] text-zinc-400 hover:border-[#2f3950] hover:text-zinc-200",
                 )}
               >
                 {f.label}
@@ -149,46 +155,46 @@ export function Connections() {
           </div>
         </div>
 
-        {/* selection bar */}
+        {/* Bulk Selection Bar */}
         {selected.size > 0 && (
-          <div className="flex flex-wrap items-center gap-2 border-b border-border/70 bg-accent/10 px-4 py-2.5 text-[13px]">
-            <span className="font-medium">{selected.size} selected</span>
+          <div className="flex flex-wrap items-center gap-2.5 border-b border-[#1d2230] bg-emerald-950/20 px-5 py-2.5 font-mono text-xs text-emerald-300">
+            <span className="font-bold tracking-wider uppercase">{selected.size} SELECTED</span>
             <div className="flex-1" />
             <Button size="xs" variant="primary" onClick={() => bulk("start", "Connected")}>Connect</Button>
-            <Button size="xs" onClick={() => bulk("stop", "Disconnected")}>Disconnect</Button>
-            <Button size="xs" onClick={() => bulk("restart", "Reconnected")}>Reconnect</Button>
-            <Button size="xs" onClick={() => bulk("shutdown", "Shut down")}>Shut down</Button>
+            <Button size="xs" variant="secondary" onClick={() => bulk("stop", "Disconnected")}>Disconnect</Button>
+            <Button size="xs" variant="secondary" onClick={() => bulk("restart", "Reconnected")}>Reconnect</Button>
+            <Button size="xs" variant="danger" onClick={() => bulk("shutdown", "Shut down")}>Shut down</Button>
             <Button size="xs" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
           </div>
         )}
 
-        {/* table */}
+        {/* Connections Table */}
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-border/70 text-left text-2xs uppercase tracking-wider text-muted-foreground">
-                <th className="w-9 px-3 py-2.5">
+              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+                <th className="w-10 px-4 py-3">
                   <input
                     type="checkbox"
-                    className="size-[15px] cursor-pointer accent-accent"
+                    className="size-3.5 cursor-pointer accent-emerald-500 rounded bg-[#161a24] border-[#2b3548]"
                     checked={allSel}
                     onChange={() =>
                       setSelected(allSel ? new Set() : new Set(rows.map((w) => w.name)))
                     }
                   />
                 </th>
-                <th className="px-2 py-2.5 font-semibold">Connection</th>
-                <th className="px-2 py-2.5 font-semibold">Exit</th>
-                <th className="px-2 py-2.5 font-semibold">Status</th>
-                <th className="px-2 py-2.5 font-semibold">Proxy</th>
-                <th className="px-2 py-2.5 text-right font-semibold">Actions</th>
+                <th className="px-3 py-3 font-semibold">Connection</th>
+                <th className="px-3 py-3 font-semibold">Exit Region</th>
+                <th className="px-3 py-3 font-semibold">Status</th>
+                <th className="px-3 py-3 font-semibold">Local Proxy</th>
+                <th className="px-4 py-3 text-right font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {!rows.length && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-[13px] text-muted-foreground">
-                    {workers.length ? "No connections match the current filter." : "No connections yet — drop .ovpn files below to add one."}
+                  <td colSpan={6} className="py-10 text-center font-mono text-xs text-zinc-500">
+                    {workers.length ? "No connections match the current filter." : "No connections yet — drop .ovpn profiles below to add one."}
                   </td>
                 </tr>
               )}
@@ -198,73 +204,75 @@ export function Connections() {
                 return (
                   <tr
                     key={w.name}
-                    className="group border-b border-border/60 transition-colors last:border-0 hover:bg-muted/50"
+                    className="group border-b border-[#181d28] transition-colors last:border-0 hover:bg-[#121622]/80"
                   >
-                    <td className="px-3 py-2.5 align-middle">
+                    <td className="px-4 py-3 align-middle">
                       <input
                         type="checkbox"
-                        className="size-[15px] cursor-pointer accent-accent"
+                        className="size-3.5 cursor-pointer accent-emerald-500 rounded bg-[#161a24] border-[#2b3548]"
                         checked={selected.has(w.name)}
                         onChange={() => toggleSel(w.name)}
                       />
                     </td>
-                    <td className="px-2 py-2.5 align-middle">
+                    <td className="px-3 py-3 align-middle">
                       <button className="text-left" onClick={() => setDetail(w.name)}>
-                        <div className="font-mono text-[13.5px] font-semibold">{w.name}</div>
-                        <div className="mt-0.5 flex items-center gap-1.5">
+                        <div className="font-mono text-[13px] font-bold text-zinc-200 group-hover:text-white transition-colors">
+                          {w.name}
+                        </div>
+                        <div className="mt-0.5 flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
                           {w.tags?.map((t) => (
-                            <span key={t} className="rounded-full bg-accent/10 px-1.5 py-px text-2xs font-medium text-accent">
+                            <span key={t} className="rounded border border-sky-500/30 bg-sky-950/40 px-1.5 py-0.5 font-semibold uppercase text-sky-400">
                               {t}
                             </span>
                           ))}
                           {w.ipinfo?.org && !w.tags?.length && (
-                            <span className="truncate text-[11.5px] text-muted-foreground">{w.ipinfo.org}</span>
+                            <span className="truncate text-zinc-500 max-w-[200px]">{w.ipinfo.org}</span>
                           )}
                         </div>
                       </button>
                     </td>
-                    <td className="px-2 py-2.5 align-middle">
+                    <td className="px-3 py-3 align-middle">
                       <div className="flex flex-col gap-0.5">
                         <CountryChip iso={w.ipinfo?.country_iso} country={w.ipinfo?.country} />
-                        {w.ipinfo?.ip && <Mono className="text-[11.5px] text-muted-foreground">{w.ipinfo.ip}</Mono>}
+                        {w.ipinfo?.ip && <span className="font-mono text-[11px] text-zinc-500">{w.ipinfo.ip}</span>}
                       </div>
                     </td>
-                    <td className="px-2 py-2.5 align-middle">
+                    <td className="px-3 py-3 align-middle">
                       <StatusPill w={w} />
                     </td>
-                    <td className="px-2 py-2.5 align-middle">
+                    <td className="px-3 py-3 align-middle">
                       {w.proxy?.online ? (
-                        <Mono className="text-muted-foreground">127.0.0.1:{w.proxy.port}</Mono>
+                        <span className="font-mono text-xs text-zinc-300">127.0.0.1:{w.proxy.port}</span>
                       ) : (
-                        <span className="text-[12.5px] text-muted-foreground">—</span>
+                        <span className="font-mono text-xs text-zinc-600">—</span>
                       )}
                     </td>
-                    <td className="px-2 py-2.5 align-middle">
-                      <div className="flex items-center justify-end gap-0.5">
+                    <td className="px-4 py-3 align-middle">
+                      <div className="flex items-center justify-end gap-1">
                         <Hint label={on ? "Disconnect" : "Connect"}>
                           <Button
                             size="icon-sm"
                             variant="ghost"
                             disabled={isBusy}
-                            className={on ? "text-ok hover:bg-bad-bg hover:text-bad" : ""}
+                            className={on ? "text-emerald-400 hover:bg-rose-950/40 hover:text-rose-400" : "text-zinc-400 hover:text-white"}
                             onClick={() => act(w.name, on ? "stop" : "start", on ? "disconnecting…" : "connecting…")}
                           >
-                            <Power />
+                            <Power className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Live logs">
-                          <Button size="icon-sm" variant="ghost" onClick={() => setLogsFor(w.name)}>
-                            <ScrollText />
+                          <Button size="icon-sm" variant="ghost" onClick={() => setLogsFor(w.name)} className="text-zinc-400 hover:text-white">
+                            <ScrollText className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Reconnect">
-                          <Button size="icon-sm" variant="ghost" disabled={isBusy} onClick={() => act(w.name, "restart", "reconnecting…")}>
-                            <RotateCw />
+                          <Button size="icon-sm" variant="ghost" disabled={isBusy} onClick={() => act(w.name, "restart", "reconnecting…")} className="text-zinc-400 hover:text-white">
+                            <RotateCw className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Details">
-                          <Button size="icon-sm" variant="ghost" onClick={() => setDetail(w.name)}>
-                            <Info />
+                          <Button size="icon-sm" variant="ghost" onClick={() => setDetail(w.name)} className="text-zinc-400 hover:text-white">
+                            <Info className="size-3.5" />
                           </Button>
                         </Hint>
                       </div>
@@ -277,7 +285,7 @@ export function Connections() {
         </div>
       </Card>
 
-      {/* upload */}
+      {/* Upload Zone */}
       <Card>
         <CardBody>
           <div
@@ -293,13 +301,15 @@ export function Connections() {
               if (e.dataTransfer.files.length) upload(e.dataTransfer.files);
             }}
             className={cn(
-              "flex cursor-pointer items-center gap-3 rounded-xl border border-dashed px-5 py-5 text-[13px] transition-colors",
-              drag ? "border-accent bg-accent/5 text-foreground" : "border-border text-muted-foreground hover:border-accent/60 hover:text-foreground",
+              "flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed py-6 px-4 text-xs font-mono transition-all",
+              drag
+                ? "border-emerald-500 bg-emerald-950/20 text-emerald-300"
+                : "border-[#252f44] bg-[#0a0d13] text-zinc-400 hover:border-emerald-500/50 hover:bg-[#0e121a] hover:text-zinc-200",
             )}
           >
-            <Upload className="size-5 opacity-70" />
+            <Upload className="size-4 text-emerald-400" />
             <span>
-              Drop <b>.ovpn</b> profiles here, or click to choose — each becomes a new exit in your fleet.
+              Drop <strong className="text-zinc-200">.ovpn</strong> profiles here or click to browse — each becomes an isolated tunnel exit in the fleet.
             </span>
             <input
               ref={fileRef}

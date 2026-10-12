@@ -37,7 +37,7 @@ export function Donut({ slices, size = 150 }: { slices: DonutSlice[]; size?: num
   return (
     <div className="flex flex-wrap items-center gap-6">
       <svg width={size} height={size} className="shrink-0 -rotate-90">
-        <circle cx={cx} cy={cy} r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth={stroke} />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke="#161b26" strokeWidth={stroke} />
         {slices.filter((s) => s.value > 0).map((s, i) => {
           const len = (s.value / total) * circ;
           const el = (
@@ -48,17 +48,17 @@ export function Donut({ slices, size = 150 }: { slices: DonutSlice[]; size?: num
           return el;
         })}
         <text x={cx} y={cy} transform={`rotate(90 ${cx} ${cy})`} textAnchor="middle" dominantBaseline="central"
-          className="fill-foreground font-semibold tabular" style={{ fontSize: 26 }}>
+          className="fill-white font-mono font-extrabold tabular-nums" style={{ fontSize: 26 }}>
           {total}
         </text>
       </svg>
-      <div className="flex min-w-[150px] flex-1 flex-col gap-2.5">
+      <div className="flex min-w-[150px] flex-1 flex-col gap-2.5 font-mono text-xs">
         {slices.map((s) => (
-          <div key={s.label} className="flex items-center gap-2.5 text-[13px]">
-            <span className="size-[9px] shrink-0 rounded-[3px]" style={{ background: s.color }} />
-            <span>{s.label}</span>
-            <span className="ml-auto font-semibold tabular">{s.value}</span>
-            <span className="w-9 text-right text-[11.5px] tabular text-muted-foreground">
+          <div key={s.label} className="flex items-center gap-2.5">
+            <span className="size-2 shrink-0 rounded-full" style={{ background: s.color, boxShadow: `0 0 6px ${s.color}88` }} />
+            <span className="text-zinc-300 font-medium">{s.label}</span>
+            <span className="ml-auto font-bold tabular-nums text-white">{s.value}</span>
+            <span className="w-10 text-right text-[11px] tabular-nums text-zinc-500">
               {Math.round((s.value / total) * 100)}%
             </span>
           </div>
@@ -72,15 +72,15 @@ export interface BarRow { label: string; value: number; sub?: string; color?: st
 export function HBars({ rows }: { rows: BarRow[] }) {
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 font-mono">
       {rows.map((r) => (
         <div key={r.label} className="grid grid-cols-[130px_1fr_auto] items-center gap-2.5">
-          <span className="truncate font-mono text-[12.5px]">{r.label}</span>
-          <span className="h-2.5 overflow-hidden rounded-md bg-muted">
-            <span className="block h-full rounded-md transition-[width] duration-500"
-              style={{ width: `${Math.max((r.value / max) * 100, 2)}%`, background: r.color || "hsl(var(--accent))" }} />
+          <span className="truncate text-xs font-semibold text-zinc-200">{r.label}</span>
+          <span className="h-2 overflow-hidden rounded-full border border-[#202737] bg-[#141924]">
+            <span className="block h-full rounded-full transition-[width] duration-500"
+              style={{ width: `${Math.max((r.value / max) * 100, 2)}%`, background: r.color || "#38bdf8", boxShadow: `0 0 8px ${r.color || "#38bdf8"}88` }} />
           </span>
-          <span className="whitespace-nowrap text-[12px] font-medium tabular text-muted-foreground">{r.sub}</span>
+          <span className="whitespace-nowrap text-xs font-medium tabular-nums text-zinc-400">{r.sub}</span>
         </div>
       ))}
     </div>

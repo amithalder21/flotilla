@@ -29,7 +29,7 @@ function Kpi({
   value,
   unit,
   spark,
-  color,
+  color = "#38bdf8",
 }: {
   label: string;
   icon: typeof Server;
@@ -39,23 +39,25 @@ function Kpi({
   color?: string;
 }) {
   return (
-    <Card className="overflow-hidden transition-transform hover:-translate-y-0.5">
-      <div className="p-4 pb-2">
-        <div className="flex items-center gap-2 text-[12.5px] font-medium text-muted-foreground">
-          <span className="grid size-7 place-items-center rounded-lg bg-accent/10 text-accent">
-            <Icon className="size-[15px]" />
-          </span>
+    <div className="relative overflow-hidden rounded-2xl border border-[#212637] bg-[#0d1017] p-4 text-white shadow-lg transition-transform hover:-translate-y-0.5 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
           {label}
-        </div>
-        <div className="mt-3 flex items-baseline gap-1.5">
-          <span className="text-[27px] font-bold tracking-tight tabular">{value}</span>
-          {unit && <span className="text-[12.5px] font-medium text-muted-foreground">{unit}</span>}
-        </div>
+        </span>
+        <span className="grid size-7 place-items-center rounded-lg border border-[#262f42] bg-[#121622] text-zinc-300">
+          <Icon className="size-3.5" />
+        </span>
       </div>
-      <div className="h-9 px-1">
+      <div className="mt-3 flex items-baseline gap-1.5">
+        <span className="font-mono text-2xl lg:text-3xl font-extrabold tracking-tight tabular-nums text-white">
+          {value}
+        </span>
+        {unit && <span className="font-mono text-xs font-semibold text-zinc-400">{unit}</span>}
+      </div>
+      <div className="mt-2 h-8 px-0.5">
         <Sparkline data={spark} color={color} />
       </div>
-    </Card>
+    </div>
   );
 }
 
