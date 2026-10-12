@@ -106,6 +106,19 @@
     animation: flowDash 1.2s linear infinite;
   }
 
+  @keyframes packetsToTarget {
+    from {
+      stroke-dashoffset: 0;
+    }
+    to {
+      stroke-dashoffset: 28;
+    }
+  }
+
+  .animate-packets-to-target {
+    animation: packetsToTarget 0.85s linear infinite;
+  }
+
   .grid-cols-28 {
     grid-template-columns: repeat(28, minmax(0, 1fr));
   }

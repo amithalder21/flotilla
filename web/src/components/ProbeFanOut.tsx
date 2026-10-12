@@ -68,17 +68,17 @@ export function ProbeFanOut({
   }, [url]);
 
   // Fan-out layout geometry
-  const width = 840;
-  const height = 320;
+  const width = 880;
+  const height = 330;
   const centerX = width / 2;
-  const centerY = height - 50; // Place origin near bottom-center for arc fan-out
+  const centerY = height - 46; // Place target destination near bottom-center
 
   const nodePositions = useMemo(() => {
     const count = Math.max(activeList.length, 1);
-    // Arc angles from -75 deg to +75 deg
-    const startAngle = -75 * (Math.PI / 180);
-    const endAngle = 75 * (Math.PI / 180);
-    const radius = 220;
+    // Arc angles from -78 deg to +78 deg for wide spatial separation
+    const startAngle = -78 * (Math.PI / 180);
+    const endAngle = 78 * (Math.PI / 180);
+    const radius = 225;
 
     return activeList.map((w, idx) => {
       const angle =
@@ -88,7 +88,10 @@ export function ProbeFanOut({
       // Math: x = centerX + radius * sin(angle), y = centerY - radius * cos(angle)
       const x = centerX + radius * Math.sin(angle);
       const y = centerY - radius * Math.cos(angle);
-      return { worker: w, x, y, angle };
+      // Stagger label height between adjacent nodes when > 3 exits to prevent text collision
+      const isEven = idx % 2 === 0;
+      const labelY = count > 3 ? (isEven ? -24 : -38) : -26;
+      return { worker: w, x, y, angle, labelY };
     });
   }, [activeList, centerX, centerY]);
 
@@ -114,11 +117,11 @@ export function ProbeFanOut({
                 Fleet Radial Fan-Out
               </span>
               <span className="rounded border border-sky-200 bg-sky-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/80 dark:text-sky-400">
-                1 REQUEST → {activeList.length} EXITS
+                {activeList.length} EXITS → 1 TARGET
               </span>
             </div>
             <div className="text-[12px] text-slate-500 font-mono dark:text-zinc-400">
-              Simultaneous dispatch across every egress node with diff verification
+              Simultaneous egress probes stream into target over WireGuard/OpenVPN tunnels
             </div>
           </div>
         </div>
@@ -126,12 +129,12 @@ export function ProbeFanOut({
         {/* Live Status indicator */}
         <div className="flex items-center gap-3 font-mono text-xs">
           {busy ? (
-            <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-50 px-3.5 py-1 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+            <div className="flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-50 px-3.5 py-1 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
               <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-amber-500" />
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-sky-400 opacity-75" />
+                <span className="relative inline-flex size-2 rounded-full bg-sky-500" />
               </span>
-              <span>Radiating waves to {activeList.length} exits…</span>
+              <span>Streaming probe requests to target across {activeList.length} exits…</span>
             </div>
           ) : result ? (
             <div className="flex items-center gap-3">
@@ -161,7 +164,7 @@ export function ProbeFanOut({
       <div className="relative mx-auto my-3 flex items-center justify-center select-none overflow-x-auto">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full max-w-[900px] h-[320px]"
+          className="w-full max-w-[920px] h-[330px]"
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
@@ -175,43 +178,7 @@ export function ProbeFanOut({
             </linearGradient>
           </defs>
 
-          {/* Radiating Radar Ripple Rings from Center when Busy */}
-          {busy && (
-            <g transform={`translate(${centerX}, ${centerY})`}>
-              <circle
-                cx="0"
-                cy="0"
-                r="60"
-                fill="none"
-                stroke="#38bdf8"
-                strokeWidth="1.5"
-                className="animate-ping"
-                style={{ animationDuration: "1.4s" }}
-              />
-              <circle
-                cx="0"
-                cy="0"
-                r="120"
-                fill="none"
-                stroke="#38bdf8"
-                strokeWidth="1"
-                className="animate-ping"
-                style={{ animationDuration: "2s" }}
-              />
-              <circle
-                cx="0"
-                cy="0"
-                r="180"
-                fill="none"
-                stroke="#38bdf8"
-                strokeWidth="0.8"
-                className="animate-ping"
-                style={{ animationDuration: "2.8s" }}
-              />
-            </g>
-          )}
-
-          {/* Radial Rays connecting Origin to each Exit */}
+          {/* Radial Rays connecting Exit Nodes to Destination Target */}
           {nodePositions.map(({ worker, x, y }) => {
             const row = rowMap.get(worker.name);
             const isRevealed = revealedExits.has(worker.name);
@@ -223,8 +190,8 @@ export function ProbeFanOut({
 
             if (busy) {
               rayStroke = "#0284c7";
-              rayOpacity = 0.85;
-              rayWidth = 2.5;
+              rayOpacity = 0.45;
+              rayWidth = 2;
             } else if (isRevealed && row) {
               if (row.error || row.diff === "error") {
                 rayStroke = "#f43f5e";
@@ -239,36 +206,76 @@ export function ProbeFanOut({
 
             return (
               <g key={`ray-${worker.name}`}>
-                {/* Background path line */}
+                {/* Background trace line from exit (x, y) to target (centerX, centerY) */}
                 <line
-                  x1={centerX}
-                  y1={centerY}
-                  x2={x}
-                  y2={y}
+                  x1={x}
+                  y1={y}
+                  x2={centerX}
+                  y2={centerY}
                   stroke={rayStroke}
                   strokeWidth={rayWidth}
                   strokeOpacity={rayOpacity}
-                  strokeDasharray={busy ? "6 8" : undefined}
-                  className={busy ? "animate-flow-dash" : undefined}
-                  style={busy ? { filter: "drop-shadow(0 0 4px #38bdf8)" } : undefined}
                 />
+
+                {/* Animated active packet stream streaming from Exit to Target */}
+                {busy && (
+                  <line
+                    x1={x}
+                    y1={y}
+                    x2={centerX}
+                    y2={centerY}
+                    stroke="#0284c7"
+                    className="dark:stroke-sky-400 animate-packets-to-target"
+                    strokeWidth={2.5}
+                    strokeDasharray="6 16"
+                    style={{ filter: "drop-shadow(0 0 5px #38bdf8)" }}
+                  />
+                )}
               </g>
             );
           })}
 
-          {/* Central Origin Node at (centerX, centerY) */}
+          {/* Central Destination Target Node at (centerX, centerY) */}
           <g transform={`translate(${centerX}, ${centerY})`}>
+            {/* Receiving pulse aura */}
+            {busy && (
+              <circle
+                cx="0"
+                cy="0"
+                r="36"
+                fill="none"
+                stroke="#38bdf8"
+                strokeWidth="1.5"
+                strokeOpacity="0.5"
+                className="animate-pulse"
+              />
+            )}
             {/* Base halo */}
             <circle
               cx="0"
               cy="0"
               r="28"
-              className="fill-slate-100 stroke-sky-500 dark:fill-[#0f1624] dark:stroke-sky-400"
-              strokeWidth="2"
-              style={{ filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.4))" }}
+              className={cn(
+                "fill-slate-100 stroke-sky-500 dark:fill-[#0f1624] dark:stroke-sky-400 transition-all",
+                busy && "animate-pulse"
+              )}
+              strokeWidth="2.5"
+              style={{ filter: "drop-shadow(0 0 12px rgba(56, 189, 248, 0.45))" }}
             />
-            <circle cx="0" cy="0" r="14" fill="#38bdf8" fillOpacity="0.2" />
-            <circle cx="0" cy="0" r="6" fill="#0284c7" className="dark:fill-[#38bdf8]" />
+            {/* Target Reticle ring */}
+            <circle
+              cx="0"
+              cy="0"
+              r="18"
+              fill="none"
+              stroke="#0284c7"
+              className={cn("dark:stroke-sky-400", busy && "animate-spin")}
+              strokeWidth="1.5"
+              strokeDasharray="4 4"
+              style={{ animationDuration: "8s" }}
+            />
+            <circle cx="0" cy="0" r="10" fill="#38bdf8" fillOpacity={busy ? 0.35 : 0.2} />
+            <circle cx="0" cy="0" r="5" fill="#0284c7" className="dark:fill-[#38bdf8]" />
             <text
               y="44"
               textAnchor="middle"
@@ -279,7 +286,7 @@ export function ProbeFanOut({
           </g>
 
           {/* Exit Nodes on the Arc */}
-          {nodePositions.map(({ worker, x, y }) => {
+          {nodePositions.map(({ worker, x, y, labelY }) => {
             const row = rowMap.get(worker.name);
             const isRevealed = revealedExits.has(worker.name);
 
@@ -292,7 +299,7 @@ export function ProbeFanOut({
             if (busy) {
               haloColor = "#0284c7";
               dotColor = "#0284c7";
-              statusLabel = "DISPATCHING…";
+              statusLabel = "SENDING…";
             } else if (isRevealed && row) {
               msText = row.ms != null ? `${row.ms}ms` : "";
               if (row.error || row.diff === "error") {
@@ -317,6 +324,20 @@ export function ProbeFanOut({
                 className="cursor-pointer transition-transform hover:scale-110"
                 onClick={() => row && onSelectRow?.(row)}
               >
+                {/* Active Transmitter Ping when broadcasting probe */}
+                {busy && (
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r="16"
+                    fill="none"
+                    stroke="#0284c7"
+                    className="dark:stroke-sky-400 animate-ping"
+                    strokeWidth="1.2"
+                    style={{ animationDuration: "1.6s" }}
+                  />
+                )}
+
                 {/* Outer Glow Halo */}
                 <circle
                   cx="0"
@@ -333,11 +354,11 @@ export function ProbeFanOut({
                 {/* Core Dot */}
                 <circle cx="0" cy="0" r="6" fill={dotColor} />
 
-                {/* Exit Label above node */}
+                {/* Exit Label above node (staggered labelY to avoid collisions) */}
                 <text
-                  y="-26"
+                  y={labelY}
                   textAnchor="middle"
-                  className="fill-slate-800 font-mono text-[11px] font-bold dark:fill-zinc-200"
+                  className="fill-slate-800 font-mono text-[10.5px] font-bold dark:fill-zinc-200"
                 >
                   {worker.name}
                   {worker.ipinfo?.country_iso ? ` [${worker.ipinfo.country_iso}]` : ""}
@@ -362,7 +383,7 @@ export function ProbeFanOut({
       <div className="mt-2 flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 text-[11px] font-mono text-slate-500 dark:border-[#1d2332] dark:text-zinc-400">
         <span className="flex items-center gap-2">
           <Send className="size-3.5 text-sky-500 dark:text-sky-400" />
-          <span>Payload dispatched over raw WireGuard/OpenVPN tunnel sockets</span>
+          <span>Simultaneous egress probes stream into target over WireGuard/OpenVPN tunnels</span>
         </span>
         <span className="text-slate-400 dark:text-zinc-500">
           Click any exit node to open its full HTTP response headers and body
