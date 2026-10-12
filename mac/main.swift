@@ -86,7 +86,7 @@ func detectProjectPath() -> String {
 class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
     var window: NSWindow!
     var webView: WKWebView!
-    var loadingView: NSView!
+    var loadingView: NSView?
     var statusLabel: NSTextField!
     var spinner: NSProgressIndicator!
     var retryButton: NSButton!
@@ -114,19 +114,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
     // MARK: - Window Setup
     func setupWindow() {
         let rect = NSRect(x: 0, y: 0, width: 1320, height: 860)
+        // Standard window titlebar: prevents window-drag from intercepting web buttons
         window = NSWindow(
             contentRect: rect,
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered,
             defer: false
         )
         window.center()
-        window.title = "Flotilla"
-        window.titleVisibility = .hidden
-        window.titlebarAppearsTransparent = true
-        window.minSize = NSSize(width: 960, height: 600)
+        window.title = "Flotilla — Fleet Control Plane"
+        window.minSize = NSSize(width: 1024, height: 640)
         window.isReleasedWhenClosed = false
-        window.backgroundColor = NSColor(red: 0.03, green: 0.04, blue: 0.06, alpha: 1.0)
+        window.backgroundColor = NSColor.windowBackgroundColor
         
         // Setup WKWebView with Token Injection
         let userContentController = WKUserContentController()
@@ -151,13 +150,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.autoresizingMask = [.width, .height]
-        webView.setValue(false, forKey: "drawsBackground") // Transparent background
         
-        // Setup Loading / Splash View
-        loadingView = NSView(frame: rect)
-        loadingView.autoresizingMask = [.width, .height]
-        loadingView.wantsLayer = true
-        loadingView.layer?.backgroundColor = NSColor(red: 0.03, green: 0.04, blue: 0.06, alpha: 1.0).cgColor
+        // Enable Inspect Element in development/production
+        if #available(macOS 13.3, *) {
+            webView.isInspectable = true
+        }
+        
+        // Setup Loading Splash View
+        let splash = NSView(frame: rect)
+        splash.autoresizingMask = [.width, .height]
+        splash.wantsLayer = true
+        splash.layer?.backgroundColor = NSColor(red: 0.05, green: 0.07, blue: 0.10, alpha: 1.0).cgColor
         
         let centerBox = NSView(frame: NSRect(x: (rect.width - 400) / 2, y: (rect.height - 240) / 2, width: 400, height: 240))
         centerBox.autoresizingMask = [.minXMargin, .maxXMargin, .minYMargin, .maxYMargin]
@@ -200,10 +203,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
         retryButton.isHidden = true
         centerBox.addSubview(retryButton)
         
-        loadingView.addSubview(centerBox)
+        splash.addSubview(centerBox)
+        self.loadingView = splash
         
         window.contentView?.addSubview(webView)
-        window.contentView?.addSubview(loadingView)
+        window.contentView?.addSubview(splash)
         window.makeKeyAndOrderFront(nil)
     }
     
@@ -246,7 +250,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
         
         let result = runProcess(executable: docker, arguments: ["compose", "-p", "mvpn", "up", "-d"], currentDirectory: projectPath)
         if result.exitCode != 0 {
-            // Check if Docker daemon is running
             let infoRes = runProcess(executable: docker, arguments: ["info"])
             if infoRes.exitCode != 0 {
                 DispatchQueue.main.async {
@@ -300,16 +303,94 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
     }
     
     func showWebview() {
-        statusLabel.stringValue = "Connected! Loading console…"
         webView.load(URLRequest(url: controllerURL))
         
+        guard let splash = self.loadingView else { return }
         NSAnimationContext.runAnimationGroup({ context in
-            context.duration = 0.35
-            loadingView.animator().alphaValue = 0.0
+            context.duration = 0.25
+            splash.animator().alphaValue = 0.0
         }, completionHandler: {
-            self.loadingView.isHidden = true
+            // Completely remove from view hierarchy so it never intercepts mouse clicks
+            splash.removeFromSuperview()
+            self.loadingView = nil
             self.spinner.stopAnimation(nil)
         })
+    }
+    
+    // MARK: - WKUIDelegate (Crucial for File Upload, Prompt, Alert, Confirm)
+    
+    // Fix: <input type="file"> / Click to browse file upload
+    func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping ([URL]?) -> Void) {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = parameters.allowsMultipleSelection
+        panel.title = "Select OpenVPN Profiles"
+        panel.prompt = "Upload"
+        
+        panel.beginSheetModal(for: self.window) { response in
+            if response == .OK {
+                completionHandler(panel.urls)
+            } else {
+                completionHandler(nil)
+            }
+        }
+    }
+    
+    // Fix: window.alert()
+    func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
+        let alert = NSAlert()
+        alert.messageText = "Flotilla"
+        alert.informativeText = message
+        alert.addButton(withTitle: "OK")
+        alert.beginSheetModal(for: self.window) { _ in
+            completionHandler()
+        }
+    }
+    
+    // Fix: window.confirm()
+    func webView(_ webView: WKWebView, runJavaScriptConfirmPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (Bool) -> Void) {
+        let alert = NSAlert()
+        alert.messageText = "Flotilla"
+        alert.informativeText = message
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+        alert.beginSheetModal(for: self.window) { response in
+            completionHandler(response == .alertFirstButtonReturn)
+        }
+    }
+    
+    // Fix: window.prompt() (Used by Rename Connection and Add Tag)
+    func webView(_ webView: WKWebView, runJavaScriptTextInputPanelWithPrompt prompt: String, defaultText: String?, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping (String?) -> Void) {
+        let alert = NSAlert()
+        alert.messageText = "Flotilla"
+        alert.informativeText = prompt
+        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: "Cancel")
+        
+        let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 300, height: 24))
+        input.stringValue = defaultText ?? ""
+        alert.accessoryView = input
+        
+        alert.beginSheetModal(for: self.window) { response in
+            if response == .alertFirstButtonReturn {
+                completionHandler(input.stringValue)
+            } else {
+                completionHandler(nil)
+            }
+        }
+    }
+    
+    // MARK: - WKNavigationDelegate
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if navigationAction.navigationType == .linkActivated {
+            if let url = navigationAction.request.url, url.host != "127.0.0.1" && url.host != "localhost" {
+                NSWorkspace.shared.open(url)
+                decisionHandler(.cancel)
+                return
+            }
+        }
+        decisionHandler(.allow)
     }
     
     // MARK: - Menu Setup
@@ -331,7 +412,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
         appMenuItem.submenu = appMenu
         mainMenu.addItem(appMenuItem)
         
-        // Edit Menu (Required for ⌘C / ⌘V / ⌘A to work in WebKit!)
+        // Edit Menu (Essential for ⌘C / ⌘V / ⌘A to work in WebKit inputs)
         let editMenuItem = NSMenuItem()
         let editMenu = NSMenu(title: "Edit")
         editMenu.addItem(NSMenuItem(title: "Undo", action: #selector(UndoManager.undo), keyEquivalent: "z"))
@@ -400,8 +481,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDe
     
     @objc func restartStack() {
         guard let docker = findDockerBinary() else { return }
-        loadingView.isHidden = false
-        loadingView.alphaValue = 1.0
         statusLabel.stringValue = "Restarting Docker containers…"
         spinner.startAnimation(nil)
         
