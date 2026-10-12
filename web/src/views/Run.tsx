@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, Textarea } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/common";
+import { Pagination } from "@/components/ui/pagination";
 import { fmtRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +29,8 @@ export function Run() {
   const [panes, setPanes] = useState<Record<string, Pane>>({});
   const [jobState, setJobState] = useState<string>("");
   const [jobId, setJobId] = useState<string | null>(null);
+  const [jobPage, setJobPage] = useState(1);
+  const [jobPageSize, setJobPageSize] = useState(10);
   const srcRef = useRef<EventSource | null>(null);
 
   useEffect(() => () => srcRef.current?.close(), []);
@@ -236,21 +239,32 @@ export function Run() {
                   </td>
                 </tr>
               )}
-              {jobs.map((j) => (
-                <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/60">
-                  <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-500 tabular-nums dark:text-zinc-400">{fmtRelative(j.ts)}</td>
-                  <td className="px-3 py-3 font-mono text-xs font-semibold text-slate-900 dark:text-zinc-200">{j.label}</td>
-                  <td className="px-3 py-3 font-mono text-xs text-slate-600 tabular-nums dark:text-zinc-400">{j.targets.length} exits</td>
-                  <td className="px-5 py-3 text-right">
-                    <Badge tone={j.status === "done" ? "ok" : j.status === "running" ? "warn" : "muted"} dot>
-                      {j.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
+              {jobs
+                .slice((jobPage - 1) * jobPageSize, jobPage * jobPageSize)
+                .map((j) => (
+                  <tr key={j.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/60">
+                    <td className="whitespace-nowrap px-5 py-3 font-mono text-xs text-slate-500 tabular-nums dark:text-zinc-400">{fmtRelative(j.ts)}</td>
+                    <td className="px-3 py-3 font-mono text-xs font-semibold text-slate-900 dark:text-zinc-200">{j.label}</td>
+                    <td className="px-3 py-3 font-mono text-xs text-slate-600 tabular-nums dark:text-zinc-400">{j.targets.length} exits</td>
+                    <td className="px-5 py-3 text-right">
+                      <Badge tone={j.status === "done" ? "ok" : j.status === "running" ? "warn" : "muted"} dot>
+                        {j.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
+        <Pagination
+          page={jobPage}
+          pageSize={jobPageSize}
+          totalItems={jobs.length}
+          onPageChange={setJobPage}
+          onPageSizeChange={setJobPageSize}
+          pageSizeOptions={[10, 20, 50]}
+          itemLabel="jobs"
+        />
       </Card>
     </div>
   );

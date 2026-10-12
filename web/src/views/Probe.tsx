@@ -8,6 +8,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Select, Textarea } from "@/components/ui/input";
 import { CountryChip, DiffBadge } from "@/components/common";
+import { Pagination } from "@/components/ui/pagination";
 import { fmtBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { ProbeResponseSheet } from "./ProbeResponseSheet";
@@ -30,6 +31,8 @@ export function Probe() {
   const [advOpen, setAdvOpen] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [importText, setImportText] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const online = workers.filter((w) => w.exists && w.vpn === "running" && w.health === "healthy").length;
 
@@ -83,6 +86,7 @@ export function Probe() {
       });
       r.req = { method, url: r.url };
       setResult(r);
+      setPage(1);
     } catch (e: any) {
       toast(e.message, "err");
     } finally {
@@ -91,6 +95,7 @@ export function Probe() {
   }
 
   const allRows = result ? [...result.rows, ...(result.direct ? [result.direct] : [])] : [];
+  const paginatedRows = allRows.slice((page - 1) * pageSize, page * pageSize);
   const outliers = result?.rows.filter((r) => r.diff === "outlier").length ?? 0;
   const errs = result?.rows.filter((r) => r.diff === "error").length ?? 0;
   const summary = result
@@ -250,7 +255,7 @@ export function Probe() {
                   </td>
                 </tr>
               )}
-              {allRows.map((r, i) => (
+              {paginatedRows.map((r, i) => (
                 <tr
                   key={r.exit + i}
                   onClick={() => setOpen({ ...r, ...({} as any) })}
@@ -280,6 +285,16 @@ export function Probe() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={allRows.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50]}
+          itemLabel="exit responses"
+        />
       </Card>
 
       <ProbeResponseSheet row={open} req={result?.req} onClose={() => setOpen(null)} />

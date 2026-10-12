@@ -9,6 +9,7 @@ import { Input, Select } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/common";
+import { Pagination } from "@/components/ui/pagination";
 import { fmtRelative, fmtTime } from "@/lib/format";
 
 export function Schedules() {
@@ -22,6 +23,8 @@ export function Schedules() {
   const [script, setScript] = useState("");
   const [body, setBody] = useState("");
   const [timeout, setTimeoutS] = useState(300);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   async function create() {
     if (!name.trim()) return toast("Name the schedule first", "err");
@@ -139,40 +142,52 @@ export function Schedules() {
                   </td>
                 </tr>
               )}
-              {schedules.map((s) => (
-                <tr key={s.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/70">
-                  <td className="px-5 py-3.5">
-                    <div className="font-mono text-xs font-bold text-slate-900 dark:text-zinc-200">{s.name}</div>
-                    <div className="font-mono text-[11px] text-slate-500 dark:text-zinc-500 mt-0.5">{s.script || s.body}</div>
-                  </td>
-                  <td className="px-3 py-3.5 font-mono text-xs text-sky-600 dark:text-sky-400 font-semibold">{s.cron}</td>
-                  <td className="px-3 py-3.5 font-mono text-xs">
-                    {s.last_run ? (
-                      <span className="text-slate-800 dark:text-zinc-300 tabular-nums">{fmtRelative(s.last_run)}</span>
-                    ) : (
-                      <span className="text-slate-400 dark:text-zinc-600">—</span>
-                    )}
-                    {s.last_status && <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono mt-0.5">{s.last_status}</div>}
-                  </td>
-                  <td className="px-3 py-3.5 font-mono text-xs text-slate-600 dark:text-zinc-400 tabular-nums">{s.next_run ? fmtTime(s.next_run) : "—"}</td>
-                  <td className="px-3 py-3.5">
-                    <Switch checked={s.enabled} onCheckedChange={(v) => toggle(s.id, v)} />
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="icon-sm" variant="ghost" title="Run now" onClick={() => runNow(s.id)} className="text-slate-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400">
-                        <Play className="size-3.5" />
-                      </Button>
-                      <Button size="icon-sm" variant="ghost" className="text-slate-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400" title="Delete" onClick={() => del(s.id)}>
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {schedules
+                .slice((page - 1) * pageSize, page * pageSize)
+                .map((s) => (
+                  <tr key={s.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/70">
+                    <td className="px-5 py-3.5">
+                      <div className="font-mono text-xs font-bold text-slate-900 dark:text-zinc-200">{s.name}</div>
+                      <div className="font-mono text-[11px] text-slate-500 dark:text-zinc-500 mt-0.5">{s.script || s.body}</div>
+                    </td>
+                    <td className="px-3 py-3.5 font-mono text-xs text-sky-600 dark:text-sky-400 font-semibold">{s.cron}</td>
+                    <td className="px-3 py-3.5 font-mono text-xs">
+                      {s.last_run ? (
+                        <span className="text-slate-800 dark:text-zinc-300 tabular-nums">{fmtRelative(s.last_run)}</span>
+                      ) : (
+                        <span className="text-slate-400 dark:text-zinc-600">—</span>
+                      )}
+                      {s.last_status && <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono mt-0.5">{s.last_status}</div>}
+                    </td>
+                    <td className="px-3 py-3.5 font-mono text-xs text-slate-600 dark:text-zinc-400 tabular-nums">{s.next_run ? fmtTime(s.next_run) : "—"}</td>
+                    <td className="px-3 py-3.5">
+                      <Switch checked={s.enabled} onCheckedChange={(v) => toggle(s.id, v)} />
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button size="icon-sm" variant="ghost" title="Run now" onClick={() => runNow(s.id)} className="text-slate-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400">
+                          <Play className="size-3.5" />
+                        </Button>
+                        <Button size="icon-sm" variant="ghost" className="text-slate-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400" title="Delete" onClick={() => del(s.id)}>
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={schedules.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 20, 50]}
+          itemLabel="schedules"
+        />
       </Card>
     </div>
   );

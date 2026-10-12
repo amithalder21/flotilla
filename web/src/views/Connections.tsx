@@ -9,6 +9,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Hint } from "@/components/ui/tooltip";
+import { Pagination } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
 import { ConnectionDrawer } from "./ConnectionDrawer";
 import { LogsDrawer } from "./LogsDrawer";
@@ -37,6 +38,8 @@ export function Connections() {
   const [probingIp, setProbingIp] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDel, setConfirmDel] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const fileRef = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
 
@@ -56,6 +59,11 @@ export function Connections() {
       return hay.includes(term);
     });
   }, [workers, q, filter]);
+
+  const paginatedRows = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return rows.slice(start, start + pageSize);
+  }, [rows, page, pageSize]);
 
   async function act(name: string, action: string, note?: string) {
     setBusy((b) => new Set(b).add(name));
@@ -150,7 +158,20 @@ export function Connections() {
       return n;
     });
   }
-  const allSel = rows.length > 0 && rows.every((w) => selected.has(w.name));
+
+  const allSel = paginatedRows.length > 0 && paginatedRows.every((w) => selected.has(w.name));
+
+  function togglePageSel() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSel) {
+        paginatedRows.forEach((w) => next.delete(w.name));
+      } else {
+        paginatedRows.forEach((w) => next.add(w.name));
+      }
+      return next;
+    });
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -238,7 +259,10 @@ export function Connections() {
             <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-slate-400 dark:text-zinc-500" />
             <Input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search by name, IP, country, org or tag…"
               className="h-8 pl-8 text-xs font-mono"
             />
@@ -247,7 +271,10 @@ export function Connections() {
             {FILTERS.map((f) => (
               <button
                 key={f.id}
-                onClick={() => setFilter(f.id)}
+                onClick={() => {
+                  setFilter(f.id);
+                  setPage(1);
+                }}
                 className={cn(
                   "rounded-lg border px-3 py-1 font-semibold uppercase tracking-wider transition-colors",
                   filter === f.id
@@ -284,9 +311,7 @@ export function Connections() {
                     type="checkbox"
                     className="size-3.5 cursor-pointer accent-emerald-500 rounded border-slate-300 bg-white dark:border-[#2b3548] dark:bg-[#161a24]"
                     checked={allSel}
-                    onChange={() =>
-                      setSelected(allSel ? new Set() : new Set(rows.map((w) => w.name)))
-                    }
+                    onChange={togglePageSel}
                   />
                 </th>
                 <th className="px-3 py-3 font-semibold">Connection</th>
@@ -304,7 +329,7 @@ export function Connections() {
                   </td>
                 </tr>
               )}
-              {rows.map((w) => {
+              {paginatedRows.map((w) => {
                 const on = running(w);
                 const isBusy = busy.has(w.name);
                 return (
@@ -389,6 +414,16 @@ export function Connections() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          totalItems={rows.length}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50, 100]}
+          itemLabel="connections"
+        />
       </Card>
 
       {/* Upload Zone */}
