@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Globe, Info, Power, RotateCw, ScrollText, Search, Trash2, Upload } from "lucide-react";
+import { Globe, Info, Power, PowerOff, RotateCw, ScrollText, Search, Trash2, Upload } from "lucide-react";
 import { api } from "@/lib/api";
 import { keys, toast, useWorkers } from "@/lib/hooks";
 import type { Worker } from "@/lib/types";
@@ -176,81 +176,155 @@ export function Connections() {
   return (
     <div className="flex flex-col gap-5">
       <Card className="overflow-hidden">
-        <CardHeader className="justify-between">
-          <div className="flex items-center gap-2.5">
-            <CardTitle>Fleet Connections</CardTitle>
-            <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-slate-700 tabular-nums dark:border-[#262e40] dark:bg-[#121622] dark:text-zinc-300">
-              {workers.length} {workers.length === 1 ? "EXIT" : "EXITS"}
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={probingIp || workers.length === 0}
-              onClick={handleCheckIp}
-              className="font-mono text-xs"
-            >
-              <Globe className={cn("size-3.5", probingIp && "animate-spin text-emerald-500")} />
-              {probingIp ? "Checking IP…" : selected.size ? `Check IP (${selected.size})` : "Check IP"}
-            </Button>
-
-            {confirmDel ? (
-              <div className="flex items-center gap-1.5">
-                <Button
-                  variant="danger"
-                  size="sm"
-                  disabled={deleting}
-                  onClick={handleDelete}
-                  className="font-mono text-xs bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
-                >
-                  <Trash2 className="size-3.5" />
-                  {deleting ? "Deleting…" : `Confirm Delete (${selected.size ? selected.size : `All ${workers.length}`})`}
-                </Button>
+        <CardHeader
+          className={cn(
+            "justify-between transition-colors",
+            selected.size > 0 &&
+              "border-b border-emerald-500/20 bg-emerald-50/70 dark:border-emerald-500/20 dark:bg-emerald-950/20",
+          )}
+        >
+          {selected.size > 0 ? (
+            <>
+              <div className="flex items-center gap-2.5">
+                <span className="rounded-full bg-emerald-600 px-2.5 py-0.5 font-mono text-xs font-bold text-white shadow-sm dark:bg-emerald-500 dark:text-zinc-950">
+                  {selected.size} SELECTED
+                </span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setConfirmDel(false)}
-                  className="font-mono text-xs text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  onClick={() => {
+                    setSelected(new Set());
+                    setConfirmDel(false);
+                  }}
+                  className="h-7 px-2 font-mono text-xs text-slate-500 hover:text-slate-800 dark:text-zinc-400 dark:hover:text-zinc-200"
                 >
-                  Cancel
+                  Clear
                 </Button>
               </div>
-            ) : (
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={workers.length === 0}
-                onClick={() => {
-                  setConfirmDel(true);
-                  setTimeout(() => setConfirmDel((c) => (c ? false : c)), 5000);
-                }}
-                className="font-mono text-xs text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:text-rose-400 dark:hover:border-rose-900/60 dark:hover:bg-rose-950/30"
-              >
-                <Trash2 className="size-3.5" />
-                {selected.size ? `Delete (${selected.size})` : "Delete"}
-              </Button>
-            )}
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => bulk("start", "Connected")}
+                  className="font-mono text-xs"
+                >
+                  <Power className="size-3.5" />
+                  Connect
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => bulk("stop", "Disconnected")}
+                  className="font-mono text-xs"
+                >
+                  <PowerOff className="size-3.5" />
+                  Disconnect
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => bulk("restart", "Reconnected")}
+                  className="font-mono text-xs"
+                >
+                  <RotateCw className="size-3.5" />
+                  Reconnect
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={probingIp}
+                  onClick={handleCheckIp}
+                  className="font-mono text-xs"
+                >
+                  <Globe className={cn("size-3.5", probingIp && "animate-spin text-emerald-500")} />
+                  {probingIp ? "Checking…" : "Check IP"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => bulk("shutdown", "Shut down")}
+                  className="font-mono text-xs text-amber-700 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                >
+                  Shut down
+                </Button>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={workers.length === 0}
-              onClick={() => bulk("stop", "Disconnected")}
-              className="font-mono text-xs"
-            >
-              {selected.size ? `Disconnect (${selected.size})` : "Disconnect all"}
-            </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={workers.length === 0}
-              onClick={() => bulk("start", "Connected")}
-              className="font-mono text-xs"
-            >
-              {selected.size ? `Connect (${selected.size})` : "Connect all"}
-            </Button>
-          </div>
+                {confirmDel ? (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      disabled={deleting}
+                      onClick={handleDelete}
+                      className="bg-rose-600 font-mono text-xs text-white shadow-sm hover:bg-rose-700"
+                    >
+                      <Trash2 className="size-3.5" />
+                      {deleting ? "Deleting…" : `Confirm Delete (${selected.size})`}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmDel(false)}
+                      className="h-7 px-2 font-mono text-xs"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => {
+                      setConfirmDel(true);
+                      setTimeout(() => setConfirmDel((c) => (c ? false : c)), 5000);
+                    }}
+                    className="font-mono text-xs text-rose-600 hover:border-rose-300 hover:bg-rose-50 dark:text-rose-400 dark:hover:border-rose-900/60 dark:hover:bg-rose-950/30"
+                  >
+                    <Trash2 className="size-3.5" />
+                    Delete
+                  </Button>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2.5">
+                <CardTitle>Fleet Connections</CardTitle>
+                <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-slate-700 tabular-nums dark:border-[#262e40] dark:bg-[#121622] dark:text-zinc-300">
+                  {workers.length} {workers.length === 1 ? "EXIT" : "EXITS"}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={probingIp || workers.length === 0}
+                  onClick={handleCheckIp}
+                  className="font-mono text-xs"
+                >
+                  <Globe className={cn("size-3.5", probingIp && "animate-spin text-emerald-500")} />
+                  {probingIp ? "Checking IP…" : "Check IP"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={workers.length === 0}
+                  onClick={() => bulk("stop", "Disconnected")}
+                  className="font-mono text-xs"
+                >
+                  Disconnect all
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={workers.length === 0}
+                  onClick={() => bulk("start", "Connected")}
+                  className="font-mono text-xs"
+                >
+                  Connect all
+                </Button>
+              </div>
+            </>
+          )}
         </CardHeader>
 
         {/* Filters & Search Deck */}
@@ -287,19 +361,6 @@ export function Connections() {
             ))}
           </div>
         </div>
-
-        {/* Bulk Selection Bar */}
-        {selected.size > 0 && (
-          <div className="flex flex-wrap items-center gap-2.5 border-b border-emerald-500/30 bg-emerald-50 px-5 py-2.5 font-mono text-xs text-emerald-900 dark:border-[#1d2230] dark:bg-emerald-950/20 dark:text-emerald-300">
-            <span className="font-bold tracking-wider uppercase">{selected.size} SELECTED</span>
-            <div className="flex-1" />
-            <Button size="xs" variant="primary" onClick={() => bulk("start", "Connected")}>Connect</Button>
-            <Button size="xs" variant="secondary" onClick={() => bulk("stop", "Disconnected")}>Disconnect</Button>
-            <Button size="xs" variant="secondary" onClick={() => bulk("restart", "Reconnected")}>Reconnect</Button>
-            <Button size="xs" variant="danger" onClick={() => bulk("shutdown", "Shut down")}>Shut down</Button>
-            <Button size="xs" variant="ghost" onClick={() => setSelected(new Set())}>Clear</Button>
-          </div>
-        )}
 
         {/* Connections Table */}
         <div className="overflow-x-auto">
