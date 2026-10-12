@@ -11,6 +11,7 @@ import { CountryChip, DiffBadge, EmptyState } from "@/components/common";
 import { fmtBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { ProbeResponseSheet } from "./ProbeResponseSheet";
+import { ProbeFanOut } from "@/components/ProbeFanOut";
 
 const METHODS = ["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"];
 
@@ -210,6 +211,16 @@ export function Probe() {
           <p className="text-[11.5px] text-muted-foreground">Click any result row to inspect that exit's full response — status line, headers, and body.</p>
         </CardBody>
       </Card>
+
+      {/* Radial Fan-Out Animation: Request visibly radiating to every exit, lighting up as responses land */}
+      <ProbeFanOut
+        workers={workers}
+        busy={busy}
+        result={result}
+        url={url}
+        method={method}
+        onSelectRow={(row) => setOpen(row)}
+      />
 
       <Card>
         <CardHeader>

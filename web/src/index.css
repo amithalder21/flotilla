@@ -97,4 +97,23 @@
     background-image: radial-gradient(hsl(var(--foreground) / 0.045) 1px, transparent 1px);
     background-size: 22px 22px;
   }
+
+  @keyframes flowDash {
+    to {
+      stroke-dashoffset: -28;
+    }
+  }
+
+  .animate-flow-dash {
+    animation: flowDash 1.2s linear infinite;
+  }
+
+  .grid-cols-28 {
+    grid-template-columns: repeat(28, minmax(0, 1fr));
+  }
+
+  .grid-cols-14 {
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+  }
 }
+

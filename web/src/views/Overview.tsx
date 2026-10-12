@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Donut, HBars, Sparkline, ThroughputChart } from "@/components/charts";
 import { WorldMap } from "@/components/WorldMap";
 import { EmptyState } from "@/components/common";
+import { FleetHero } from "@/components/FleetHero";
+import { ActivityStrip } from "@/components/ActivityStrip";
 import { useMetrics, useWorkers } from "@/lib/hooks";
 import { fmtBytes, fmtRate } from "@/lib/format";
 import type { MetricPoint, Worker } from "@/lib/types";
@@ -110,39 +112,21 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
     }));
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* status hero */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-border bg-card px-5 py-4 shadow-float">
-        <div className="flex items-center gap-3">
-          <span className={`relative flex size-2.5`}>
-            <span className={`absolute inline-flex size-full rounded-full ${issues.length ? "bg-bad" : "bg-ok"} opacity-60 ${issues.length ? "" : "animate-ping"}`} />
-            <span className={`relative inline-flex size-2.5 rounded-full ${issues.length ? "bg-bad" : "bg-ok"}`} />
-          </span>
-          <div>
-            <div className="text-[15px] font-semibold tracking-tight">
-              {issues.length
-                ? `${issues.length} ${issues.length === 1 ? "exit needs" : "exits need"} attention`
-                : connected.length
-                  ? "All systems nominal"
-                  : "Fleet idle"}
-            </div>
-            <div className="text-[12.5px] text-muted-foreground">
-              {connected.length} of {workers.length} exits online across {countries || 0}{" "}
-              {countries === 1 ? "region" : "regions"}
-            </div>
-          </div>
-        </div>
-        <div className="ml-auto flex items-center gap-5 text-[13px]">
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <ArrowDown className="size-4 text-accent" />
-            <span className="font-semibold tabular text-foreground">{fmtRate(nowRate?.rx)}</span>
-          </span>
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-            <ArrowUp className="size-4 text-ok" />
-            <span className="font-semibold tabular text-foreground">{fmtRate(nowRate?.tx)}</span>
-          </span>
-        </div>
-      </div>
+    <div className="flex flex-col gap-5">
+      {/* Signature Fleet Hero: Plexo-inspired control plane fan-out, throughput stats, and stacked chart */}
+      <FleetHero
+        workers={workers}
+        metrics={metrics}
+        rate={rate}
+        onSelectExit={() => setView("connections")}
+      />
+
+      {/* Per-Exit Activity Strip: Segmented-block matrix & live throughput shares */}
+      <ActivityStrip
+        workers={workers}
+        nowRate={nowRate}
+        onSelectExit={() => setView("connections")}
+      />
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -152,7 +136,7 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
         <Kpi label="Data moved" icon={Waves} value={fmtBytes(totalData)} spark={rate.map((r) => r.rx + r.tx)} color="hsl(var(--accent))" />
       </div>
 
-      {/* map */}
+      {/* World Map */}
       <Card>
         <CardHeader>
           <CardTitle>Exit map</CardTitle>
@@ -163,7 +147,7 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
         </CardBody>
       </Card>
 
-      {/* donut + bars */}
+      {/* Donut & Cumulative Bars */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -194,21 +178,7 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
           </CardBody>
         </Card>
       </div>
-
-      {/* throughput */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Live throughput</CardTitle>
-          <CardSub>per second, across the fleet</CardSub>
-          <div className="ml-auto flex gap-4 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-accent" /> Download</span>
-            <span className="inline-flex items-center gap-1.5"><span className="size-2 rounded-full bg-ok" /> Upload</span>
-          </div>
-        </CardHeader>
-        <CardBody>
-          {rate.length > 1 ? <ThroughputChart data={rate} /> : <EmptyState>Sampling… rates appear after a few seconds.</EmptyState>}
-        </CardBody>
-      </Card>
     </div>
   );
 }
+
