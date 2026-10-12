@@ -98,26 +98,26 @@ export function ProbeFanOut({
   const matchesCount = result?.rows.filter((r) => r.diff === "same").length ?? 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#232838] bg-[#0c0f16] p-6 text-white shadow-2xl">
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 text-slate-900 shadow-sm transition-colors dark:border-[#232838] dark:bg-[#0c0f16] dark:text-white dark:shadow-2xl">
       {/* Background Grid Accent */}
       <div className="pointer-events-none absolute inset-0 bg-grid opacity-30" />
       
       {/* Top Banner & Mode */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-[#1d2332] pb-4">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 dark:border-[#1d2332]">
         <div className="flex items-center gap-3">
-          <div className="grid size-9 place-items-center rounded-xl border border-sky-500/30 bg-sky-950/40 text-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.2)]">
+          <div className="grid size-9 place-items-center rounded-xl border border-sky-500/30 bg-sky-50 text-sky-600 shadow-sm dark:bg-sky-950/40 dark:text-sky-400 dark:shadow-[0_0_12px_rgba(56,189,248,0.2)]">
             <Radar className="size-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm font-bold uppercase tracking-wider text-zinc-200">
+              <span className="font-mono text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-zinc-200">
                 Fleet Radial Fan-Out
               </span>
-              <span className="rounded bg-sky-950/80 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-sky-400 border border-sky-800/50">
+              <span className="rounded border border-sky-200 bg-sky-50 px-2 py-0.5 font-mono text-[10.5px] font-semibold text-sky-700 dark:border-sky-800/50 dark:bg-sky-950/80 dark:text-sky-400">
                 1 REQUEST → {activeList.length} EXITS
               </span>
             </div>
-            <div className="text-[12px] text-zinc-400 font-mono">
+            <div className="text-[12px] text-slate-500 font-mono dark:text-zinc-400">
               Simultaneous dispatch across every egress node with diff verification
             </div>
           </div>
@@ -126,31 +126,31 @@ export function ProbeFanOut({
         {/* Live Status indicator */}
         <div className="flex items-center gap-3 font-mono text-xs">
           {busy ? (
-            <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-950/40 px-3.5 py-1 text-amber-300">
+            <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-50 px-3.5 py-1 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-amber-400" />
+                <span className="relative inline-flex size-2 rounded-full bg-amber-500" />
               </span>
               <span>Radiating waves to {activeList.length} exits…</span>
             </div>
           ) : result ? (
             <div className="flex items-center gap-3">
               {outliersCount > 0 && (
-                <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-950/40 px-3 py-1 text-amber-400">
+                <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-50 px-3 py-1 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
                   <AlertTriangle className="size-3.5" /> {outliersCount} Differs
                 </span>
               )}
               {errorsCount > 0 && (
-                <span className="flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-950/40 px-3 py-1 text-rose-400">
+                <span className="flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-50 px-3 py-1 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400">
                   <XCircle className="size-3.5" /> {errorsCount} Unreachable
                 </span>
               )}
-              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-950/40 px-3 py-1 text-emerald-400">
+              <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-50 px-3 py-1 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                 <CheckCircle2 className="size-3.5" /> {matchesCount} Consensus Match
               </span>
             </div>
           ) : (
-            <span className="rounded-full border border-[#232838] bg-[#141824] px-3 py-1 text-zinc-400">
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-500 dark:border-[#232838] dark:bg-[#141824] dark:text-zinc-400">
               Ready for dispatch
             </span>
           )}
@@ -217,12 +217,12 @@ export function ProbeFanOut({
             const isRevealed = revealedExits.has(worker.name);
 
             // Determine ray color & styling based on state
-            let rayStroke = "#2b3448";
-            let rayOpacity = 0.4;
+            let rayStroke = "#64748b";
+            let rayOpacity = 0.25;
             let rayWidth = 1.5;
 
             if (busy) {
-              rayStroke = "#38bdf8";
+              rayStroke = "#0284c7";
               rayOpacity = 0.85;
               rayWidth = 2.5;
             } else if (isRevealed && row) {
@@ -263,17 +263,16 @@ export function ProbeFanOut({
               cx="0"
               cy="0"
               r="28"
-              fill="#0f1624"
-              stroke="#38bdf8"
+              className="fill-slate-100 stroke-sky-500 dark:fill-[#0f1624] dark:stroke-sky-400"
               strokeWidth="2"
-              style={{ filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.5))" }}
+              style={{ filter: "drop-shadow(0 0 10px rgba(56, 189, 248, 0.4))" }}
             />
             <circle cx="0" cy="0" r="14" fill="#38bdf8" fillOpacity="0.2" />
-            <circle cx="0" cy="0" r="6" fill="#38bdf8" />
+            <circle cx="0" cy="0" r="6" fill="#0284c7" className="dark:fill-[#38bdf8]" />
             <text
               y="44"
               textAnchor="middle"
-              className="fill-zinc-300 font-mono text-[11px] font-bold uppercase tracking-wider"
+              className="fill-slate-700 font-mono text-[11px] font-bold uppercase tracking-wider dark:fill-zinc-300"
             >
               {method} · {displayHost}
             </text>
@@ -285,14 +284,14 @@ export function ProbeFanOut({
             const isRevealed = revealedExits.has(worker.name);
 
             // Determine status tone
-            let haloColor = "#262f42";
-            let dotColor = "#4b5563";
+            let haloColor = "#94a3b8";
+            let dotColor = "#64748b";
             let statusLabel = "READY";
             let msText = "";
 
             if (busy) {
-              haloColor = "#38bdf8";
-              dotColor = "#38bdf8";
+              haloColor = "#0284c7";
+              dotColor = "#0284c7";
               statusLabel = "DISPATCHING…";
             } else if (isRevealed && row) {
               msText = row.ms != null ? `${row.ms}ms` : "";
@@ -323,7 +322,7 @@ export function ProbeFanOut({
                   cx="0"
                   cy="0"
                   r="20"
-                  fill="#0e131d"
+                  className="fill-slate-100 dark:fill-[#0e131d]"
                   stroke={haloColor}
                   strokeWidth="2"
                   style={{
@@ -338,7 +337,7 @@ export function ProbeFanOut({
                 <text
                   y="-26"
                   textAnchor="middle"
-                  className="fill-zinc-200 font-mono text-[11px] font-bold"
+                  className="fill-slate-800 font-mono text-[11px] font-bold dark:fill-zinc-200"
                 >
                   {worker.name}
                   {worker.ipinfo?.country_iso ? ` [${worker.ipinfo.country_iso}]` : ""}
@@ -349,7 +348,7 @@ export function ProbeFanOut({
                   y="34"
                   textAnchor="middle"
                   className="font-mono text-[10px] font-semibold"
-                  fill={isRevealed || busy ? haloColor : "#71717a"}
+                  fill={isRevealed || busy ? haloColor : "#94a3b8"}
                 >
                   {statusLabel} {msText ? `· ${msText}` : ""}
                 </text>
@@ -360,12 +359,12 @@ export function ProbeFanOut({
       </div>
 
       {/* Bottom Dispatch Footer */}
-      <div className="mt-2 flex flex-wrap items-center justify-between border-t border-[#1d2332] pt-3 text-[11px] font-mono text-zinc-400">
+      <div className="mt-2 flex flex-wrap items-center justify-between border-t border-slate-100 pt-3 text-[11px] font-mono text-slate-500 dark:border-[#1d2332] dark:text-zinc-400">
         <span className="flex items-center gap-2">
-          <Send className="size-3.5 text-sky-400" />
+          <Send className="size-3.5 text-sky-500 dark:text-sky-400" />
           <span>Payload dispatched over raw WireGuard/OpenVPN tunnel sockets</span>
         </span>
-        <span className="text-zinc-500">
+        <span className="text-slate-400 dark:text-zinc-500">
           Click any exit node to open its full HTTP response headers and body
         </span>
       </div>

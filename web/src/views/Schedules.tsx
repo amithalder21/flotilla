@@ -69,31 +69,26 @@ export function Schedules() {
   return (
     <div className="flex flex-col gap-5">
       <Card>
-        <CardHeader className="justify-between">
-          <div className="flex items-center gap-2.5">
-            <CardTitle>Create Fleet Schedule</CardTitle>
-            <span className="rounded-full border border-sky-500/30 bg-sky-950/40 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold text-sky-400 uppercase tracking-wider">
-              CRON AUTOMATION
-            </span>
-          </div>
+        <CardHeader>
+          <CardTitle>Create Fleet Schedule</CardTitle>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="grid gap-4 md:grid-cols-3">
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-zinc-400">
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-slate-500 dark:text-zinc-400">
               Schedule Name
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Daily Egress Health Check" className="font-sans text-xs text-zinc-100" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Daily Egress Health Check" className="font-sans text-xs" />
             </label>
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-zinc-400">
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-slate-500 dark:text-zinc-400">
               Cron Expression (m h dom mon dow)
-              <Input value={cron} onChange={(e) => setCron(e.target.value)} className="font-mono text-xs text-zinc-100" />
+              <Input value={cron} onChange={(e) => setCron(e.target.value)} className="font-mono text-xs" />
             </label>
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-zinc-400">
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-slate-500 dark:text-zinc-400">
               Timeout (seconds)
-              <Input type="number" value={timeout} onChange={(e) => setTimeoutS(+e.target.value || 300)} className="font-mono text-xs text-zinc-100 tabular-nums" />
+              <Input type="number" value={timeout} onChange={(e) => setTimeoutS(+e.target.value || 300)} className="font-mono text-xs tabular-nums" />
             </label>
-            <label className="flex flex-col gap-1.5 font-mono text-xs text-zinc-400 md:col-span-1">
+            <label className="flex flex-col gap-1.5 font-mono text-xs text-slate-500 dark:text-zinc-400 md:col-span-1">
               Script Preset
-              <Select value={script} onChange={(e) => setScript(e.target.value)} className="font-mono text-xs text-zinc-100">
+              <Select value={script} onChange={(e) => setScript(e.target.value)} className="font-mono text-xs">
                 <option value="">Inline bash command →</option>
                 {scripts.map((s) => (
                   <option key={s}>{s}</option>
@@ -101,9 +96,9 @@ export function Schedules() {
               </Select>
             </label>
             {!script && (
-              <label className="flex flex-col gap-1.5 font-mono text-xs text-zinc-400 md:col-span-2">
+              <label className="flex flex-col gap-1.5 font-mono text-xs text-slate-500 dark:text-zinc-400 md:col-span-2">
                 Inline Bash Command
-                <Input value={body} onChange={(e) => setBody(e.target.value)} placeholder="curl -s https://ifconfig.co/json" className="font-mono text-xs text-zinc-100" />
+                <Input value={body} onChange={(e) => setBody(e.target.value)} placeholder="curl -s https://ifconfig.co/json" className="font-mono text-xs" />
               </label>
             )}
           </div>
@@ -119,7 +114,7 @@ export function Schedules() {
         <CardHeader className="justify-between">
           <div className="flex items-center gap-2.5">
             <CardTitle>Active Recurring Jobs</CardTitle>
-            <span className="rounded-full border border-[#252c3c] bg-[#141822] px-2.5 py-0.5 font-mono text-[11px] font-bold text-zinc-300 tabular-nums">
+            <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-slate-700 tabular-nums dark:border-[#252c3c] dark:bg-[#141822] dark:text-zinc-300">
               {schedules.length} {schedules.length === 1 ? "SCHEDULE" : "SCHEDULES"}
             </span>
           </div>
@@ -127,7 +122,7 @@ export function Schedules() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+              <tr className="border-b border-slate-200 text-left font-mono text-2xs uppercase tracking-wider text-slate-500 dark:border-[#1d2230] dark:text-zinc-400">
                 <th className="px-5 py-3 font-semibold">Name & Command</th>
                 <th className="px-3 py-3 font-semibold">Cron Pattern</th>
                 <th className="px-3 py-3 font-semibold">Last Execution</th>
@@ -139,36 +134,36 @@ export function Schedules() {
             <tbody>
               {!schedules.length && (
                 <tr>
-                  <td colSpan={6} className="py-10 text-center font-mono text-xs text-zinc-500">
+                  <td colSpan={6} className="py-10 text-center font-mono text-xs text-slate-400 dark:text-zinc-500">
                     No recurring schedules configured yet — create one above.
                   </td>
                 </tr>
               )}
               {schedules.map((s) => (
-                <tr key={s.id} className="border-b border-[#181d28] last:border-0 hover:bg-[#121622]/70 transition-colors">
+                <tr key={s.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors dark:border-[#181d28] dark:hover:bg-[#121622]/70">
                   <td className="px-5 py-3.5">
-                    <div className="font-mono text-xs font-bold text-zinc-200">{s.name}</div>
-                    <div className="font-mono text-[11px] text-zinc-500 mt-0.5">{s.script || s.body}</div>
+                    <div className="font-mono text-xs font-bold text-slate-900 dark:text-zinc-200">{s.name}</div>
+                    <div className="font-mono text-[11px] text-slate-500 dark:text-zinc-500 mt-0.5">{s.script || s.body}</div>
                   </td>
-                  <td className="px-3 py-3.5 font-mono text-xs text-sky-400 font-semibold">{s.cron}</td>
+                  <td className="px-3 py-3.5 font-mono text-xs text-sky-600 dark:text-sky-400 font-semibold">{s.cron}</td>
                   <td className="px-3 py-3.5 font-mono text-xs">
                     {s.last_run ? (
-                      <span className="text-zinc-300 tabular-nums">{fmtRelative(s.last_run)}</span>
+                      <span className="text-slate-800 dark:text-zinc-300 tabular-nums">{fmtRelative(s.last_run)}</span>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-slate-400 dark:text-zinc-600">—</span>
                     )}
-                    {s.last_status && <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{s.last_status}</div>}
+                    {s.last_status && <div className="text-[10px] text-slate-500 dark:text-zinc-500 font-mono mt-0.5">{s.last_status}</div>}
                   </td>
-                  <td className="px-3 py-3.5 font-mono text-xs text-zinc-400 tabular-nums">{s.next_run ? fmtTime(s.next_run) : "—"}</td>
+                  <td className="px-3 py-3.5 font-mono text-xs text-slate-600 dark:text-zinc-400 tabular-nums">{s.next_run ? fmtTime(s.next_run) : "—"}</td>
                   <td className="px-3 py-3.5">
                     <Switch checked={s.enabled} onCheckedChange={(v) => toggle(s.id, v)} />
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1">
-                      <Button size="icon-sm" variant="ghost" title="Run now" onClick={() => runNow(s.id)} className="text-zinc-400 hover:text-emerald-400">
+                      <Button size="icon-sm" variant="ghost" title="Run now" onClick={() => runNow(s.id)} className="text-slate-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400">
                         <Play className="size-3.5" />
                       </Button>
-                      <Button size="icon-sm" variant="ghost" className="text-zinc-400 hover:text-rose-400" title="Delete" onClick={() => del(s.id)}>
+                      <Button size="icon-sm" variant="ghost" className="text-slate-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400" title="Delete" onClick={() => del(s.id)}>
                         <Trash2 className="size-3.5" />
                       </Button>
                     </div>

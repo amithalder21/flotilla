@@ -112,24 +112,27 @@ export function Connections() {
         <CardHeader className="justify-between">
           <div className="flex items-center gap-2.5">
             <CardTitle>Fleet Connections</CardTitle>
-            <span className="rounded-full border border-[#262e40] bg-[#121622] px-2.5 py-0.5 font-mono text-[11px] font-bold text-zinc-300 tabular-nums">
+            <span className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 font-mono text-[11px] font-bold text-slate-700 tabular-nums dark:border-[#262e40] dark:bg-[#121622] dark:text-zinc-300">
               {workers.length} {workers.length === 1 ? "EXIT" : "EXITS"}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" onClick={() => bulk("stop", "Disconnected")}>
+            <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()} className="font-mono text-xs">
+              <Upload className="size-3.5" /> Upload
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => bulk("stop", "Disconnected")} className="font-mono text-xs">
               Disconnect all
             </Button>
-            <Button variant="primary" size="sm" onClick={() => bulk("start", "Connected")}>
+            <Button variant="primary" size="sm" onClick={() => bulk("start", "Connected")} className="font-mono text-xs">
               Connect all
             </Button>
           </div>
         </CardHeader>
 
         {/* Filters & Search Deck */}
-        <div className="flex flex-wrap items-center gap-3 border-b border-[#1d2230] bg-[#090c12] px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-3 dark:border-[#1d2230] dark:bg-[#090c12]">
           <div className="relative min-w-[220px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-zinc-500" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-slate-400 dark:text-zinc-500" />
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -145,8 +148,8 @@ export function Connections() {
                 className={cn(
                   "rounded-lg border px-3 py-1 font-semibold uppercase tracking-wider transition-colors",
                   filter === f.id
-                    ? "border-emerald-500/40 bg-emerald-950/40 text-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.15)]"
-                    : "border-[#202737] bg-[#121622] text-zinc-400 hover:border-[#2f3950] hover:text-zinc-200",
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-800 shadow-sm dark:border-emerald-500/40 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-[#202737] dark:bg-[#121622] dark:text-zinc-400 dark:hover:border-[#2f3950] dark:hover:text-zinc-200",
                 )}
               >
                 {f.label}
@@ -157,7 +160,7 @@ export function Connections() {
 
         {/* Bulk Selection Bar */}
         {selected.size > 0 && (
-          <div className="flex flex-wrap items-center gap-2.5 border-b border-[#1d2230] bg-emerald-950/20 px-5 py-2.5 font-mono text-xs text-emerald-300">
+          <div className="flex flex-wrap items-center gap-2.5 border-b border-emerald-500/30 bg-emerald-50 px-5 py-2.5 font-mono text-xs text-emerald-900 dark:border-[#1d2230] dark:bg-emerald-950/20 dark:text-emerald-300">
             <span className="font-bold tracking-wider uppercase">{selected.size} SELECTED</span>
             <div className="flex-1" />
             <Button size="xs" variant="primary" onClick={() => bulk("start", "Connected")}>Connect</Button>
@@ -172,11 +175,11 @@ export function Connections() {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[#1d2230] text-left font-mono text-2xs uppercase tracking-wider text-zinc-400">
+              <tr className="border-b border-slate-200 text-left font-mono text-2xs uppercase tracking-wider text-slate-500 dark:border-[#1d2230] dark:text-zinc-400">
                 <th className="w-10 px-4 py-3">
                   <input
                     type="checkbox"
-                    className="size-3.5 cursor-pointer accent-emerald-500 rounded bg-[#161a24] border-[#2b3548]"
+                    className="size-3.5 cursor-pointer accent-emerald-500 rounded border-slate-300 bg-white dark:border-[#2b3548] dark:bg-[#161a24]"
                     checked={allSel}
                     onChange={() =>
                       setSelected(allSel ? new Set() : new Set(rows.map((w) => w.name)))
@@ -204,29 +207,29 @@ export function Connections() {
                 return (
                   <tr
                     key={w.name}
-                    className="group border-b border-[#181d28] transition-colors last:border-0 hover:bg-[#121622]/80"
+                    className="group border-b border-slate-100 transition-colors last:border-0 hover:bg-slate-50/80 dark:border-[#181d28] dark:hover:bg-[#121622]/80"
                   >
                     <td className="px-4 py-3 align-middle">
                       <input
                         type="checkbox"
-                        className="size-3.5 cursor-pointer accent-emerald-500 rounded bg-[#161a24] border-[#2b3548]"
+                        className="size-3.5 cursor-pointer accent-emerald-500 rounded border-slate-300 bg-white dark:border-[#2b3548] dark:bg-[#161a24]"
                         checked={selected.has(w.name)}
                         onChange={() => toggleSel(w.name)}
                       />
                     </td>
                     <td className="px-3 py-3 align-middle">
                       <button className="text-left" onClick={() => setDetail(w.name)}>
-                        <div className="font-mono text-[13px] font-bold text-zinc-200 group-hover:text-white transition-colors">
+                        <div className="font-mono text-[13px] font-bold text-slate-800 group-hover:text-slate-950 transition-colors dark:text-zinc-200 dark:group-hover:text-white">
                           {w.name}
                         </div>
                         <div className="mt-0.5 flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
                           {w.tags?.map((t) => (
-                            <span key={t} className="rounded border border-sky-500/30 bg-sky-950/40 px-1.5 py-0.5 font-semibold uppercase text-sky-400">
+                            <span key={t} className="rounded border border-sky-500/30 bg-sky-50 px-1.5 py-0.5 font-semibold uppercase text-sky-700 dark:bg-sky-950/40 dark:text-sky-400">
                               {t}
                             </span>
                           ))}
                           {w.ipinfo?.org && !w.tags?.length && (
-                            <span className="truncate text-zinc-500 max-w-[200px]">{w.ipinfo.org}</span>
+                            <span className="truncate text-slate-400 dark:text-zinc-500 max-w-[200px]">{w.ipinfo.org}</span>
                           )}
                         </div>
                       </button>
@@ -234,7 +237,7 @@ export function Connections() {
                     <td className="px-3 py-3 align-middle">
                       <div className="flex flex-col gap-0.5">
                         <CountryChip iso={w.ipinfo?.country_iso} country={w.ipinfo?.country} />
-                        {w.ipinfo?.ip && <span className="font-mono text-[11px] text-zinc-500">{w.ipinfo.ip}</span>}
+                        {w.ipinfo?.ip && <span className="font-mono text-[11px] text-slate-400 dark:text-zinc-500">{w.ipinfo.ip}</span>}
                       </div>
                     </td>
                     <td className="px-3 py-3 align-middle">
@@ -242,9 +245,9 @@ export function Connections() {
                     </td>
                     <td className="px-3 py-3 align-middle">
                       {w.proxy?.online ? (
-                        <span className="font-mono text-xs text-zinc-300">127.0.0.1:{w.proxy.port}</span>
+                        <span className="font-mono text-xs text-slate-700 dark:text-zinc-300">127.0.0.1:{w.proxy.port}</span>
                       ) : (
-                        <span className="font-mono text-xs text-zinc-600">—</span>
+                        <span className="font-mono text-xs text-slate-400 dark:text-zinc-600">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3 align-middle">
@@ -254,24 +257,24 @@ export function Connections() {
                             size="icon-sm"
                             variant="ghost"
                             disabled={isBusy}
-                            className={on ? "text-emerald-400 hover:bg-rose-950/40 hover:text-rose-400" : "text-zinc-400 hover:text-white"}
+                            className={on ? "text-emerald-600 hover:bg-rose-50 hover:text-rose-600 dark:text-emerald-400 dark:hover:bg-rose-950/40 dark:hover:text-rose-400" : "text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white"}
                             onClick={() => act(w.name, on ? "stop" : "start", on ? "disconnecting…" : "connecting…")}
                           >
                             <Power className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Live logs">
-                          <Button size="icon-sm" variant="ghost" onClick={() => setLogsFor(w.name)} className="text-zinc-400 hover:text-white">
+                          <Button size="icon-sm" variant="ghost" onClick={() => setLogsFor(w.name)} className="text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white">
                             <ScrollText className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Reconnect">
-                          <Button size="icon-sm" variant="ghost" disabled={isBusy} onClick={() => act(w.name, "restart", "reconnecting…")} className="text-zinc-400 hover:text-white">
+                          <Button size="icon-sm" variant="ghost" disabled={isBusy} onClick={() => act(w.name, "restart", "reconnecting…")} className="text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white">
                             <RotateCw className="size-3.5" />
                           </Button>
                         </Hint>
                         <Hint label="Details">
-                          <Button size="icon-sm" variant="ghost" onClick={() => setDetail(w.name)} className="text-zinc-400 hover:text-white">
+                          <Button size="icon-sm" variant="ghost" onClick={() => setDetail(w.name)} className="text-slate-500 hover:text-slate-900 dark:text-zinc-400 dark:hover:text-white">
                             <Info className="size-3.5" />
                           </Button>
                         </Hint>
@@ -301,15 +304,15 @@ export function Connections() {
               if (e.dataTransfer.files.length) upload(e.dataTransfer.files);
             }}
             className={cn(
-              "flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed py-6 px-4 text-xs font-mono transition-all",
+              "flex cursor-pointer items-center justify-center gap-3 rounded-xl border border-dashed py-5 px-4 text-xs font-mono transition-all",
               drag
-                ? "border-emerald-500 bg-emerald-950/20 text-emerald-300"
-                : "border-[#252f44] bg-[#0a0d13] text-zinc-400 hover:border-emerald-500/50 hover:bg-[#0e121a] hover:text-zinc-200",
+                ? "border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/20 dark:text-emerald-300"
+                : "border-slate-300 bg-slate-50/50 text-slate-600 hover:border-emerald-500/60 hover:bg-slate-50 hover:text-slate-900 dark:border-[#252f44] dark:bg-[#0a0d13] dark:text-zinc-400 dark:hover:border-emerald-500/50 dark:hover:bg-[#0e121a] dark:hover:text-zinc-200",
             )}
           >
-            <Upload className="size-4 text-emerald-400" />
+            <Upload className="size-4 text-emerald-600 dark:text-emerald-400" />
             <span>
-              Drop <strong className="text-zinc-200">.ovpn</strong> profiles here or click to browse — each becomes an isolated tunnel exit in the fleet.
+              Drop <strong className="text-slate-800 dark:text-zinc-200">.ovpn</strong> profiles here or click to browse
             </span>
             <input
               ref={fileRef}

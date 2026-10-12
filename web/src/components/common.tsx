@@ -4,22 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import type { Worker } from "@/lib/types";
 
 export function CountryChip({ iso, country }: { iso?: string | null; country?: string | null }) {
-  if (!iso && !country) return <span className="text-zinc-500 font-mono">—</span>;
+  if (!iso && !country) return <span className="text-slate-400 dark:text-zinc-500 font-mono">—</span>;
   return (
     <span className="inline-flex items-center gap-2">
       {iso && (
-        <span className="inline-grid h-5 min-w-[30px] place-items-center rounded-[5px] border border-[#262e40] bg-[#121622] px-1.5 font-mono text-[10px] font-bold uppercase leading-none tracking-wider text-zinc-300">
+        <span className="inline-grid h-5 min-w-[30px] place-items-center rounded-[5px] border border-slate-200 bg-slate-100 px-1.5 font-mono text-[10px] font-bold uppercase leading-none tracking-wider text-slate-700 dark:border-[#262e40] dark:bg-[#121622] dark:text-zinc-300">
           [{iso}]
         </span>
       )}
-      {country && <span className="text-[12.5px] text-zinc-200 font-medium">{country}</span>}
+      {country && <span className="text-[12.5px] text-slate-700 font-medium dark:text-zinc-200">{country}</span>}
     </span>
   );
 }
 
 export function EmptyState({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("py-10 text-center font-mono text-xs text-zinc-400", className)}>{children}</div>
+    <div className={cn("py-10 text-center font-mono text-xs text-slate-500 dark:text-zinc-400", className)}>{children}</div>
   );
 }
 

@@ -5,6 +5,7 @@ import { useWorkers } from "@/lib/hooks";
 import { Sidebar, type ViewId } from "@/components/Sidebar";
 import { Toaster } from "@/components/Toaster";
 import { TokenGate } from "@/components/TokenGate";
+import { ThemeProvider, ThemeToggle } from "@/lib/theme";
 import { Overview } from "@/views/Overview";
 import { Connections } from "@/views/Connections";
 import { Run } from "@/views/Run";
@@ -14,13 +15,13 @@ import { Activity } from "@/views/Activity";
 import { Settings } from "@/views/Settings";
 
 const META: Record<ViewId, { title: string; sub: string }> = {
-  overview: { title: "Overview", sub: "Fleet at a glance" },
-  connections: { title: "Connections", sub: "Your exits, live" },
-  run: { title: "Run script", sub: "Execute across every exit" },
-  probe: { title: "Probe", sub: "Compare a request from every exit" },
-  schedules: { title: "Schedules", sub: "Recurring jobs" },
-  activity: { title: "Activity", sub: "What the fleet has been doing" },
-  settings: { title: "Settings", sub: "Token, auto-heal, proxy pool" },
+  overview: { title: "Overview", sub: "Fleet telemetry & control" },
+  connections: { title: "Connections", sub: "Active egress tunnels" },
+  run: { title: "Run script", sub: "Distributed fleet execution" },
+  probe: { title: "Probe", sub: "Multi-exit HTTP inspection" },
+  schedules: { title: "Schedules", sub: "Automated recurring jobs" },
+  activity: { title: "Activity", sub: "Fleet audit events" },
+  settings: { title: "Settings", sub: "Control configuration" },
 };
 
 function Shell({ onDeauth }: { onDeauth: () => void }) {
@@ -45,21 +46,23 @@ function Shell({ onDeauth }: { onDeauth: () => void }) {
   const m = META[view];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#080a0f] text-zinc-100">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-[#080a0f] text-slate-900 dark:text-zinc-100 transition-colors">
       <Sidebar view={view} setView={setView} issues={issues} connState={connState} />
       <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
-        <header className="shrink-0 z-20 flex h-[58px] items-center justify-between border-b border-[#1a1f2d] bg-[#080a0f] px-8">
-          <div className="flex items-center gap-3">
-            <h1 className="font-mono text-sm font-bold tracking-wider uppercase text-zinc-100">{m.title}</h1>
-            <span className="hidden font-mono text-xs text-zinc-500 sm:inline">/ {m.sub}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-950/40 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold text-emerald-400">
-              CORE v1.0
+        <header className="shrink-0 z-20 flex h-[58px] items-center justify-between border-b border-slate-200/80 bg-white/80 dark:border-[#1a1f2d] dark:bg-[#080a0f]/90 px-6 sm:px-8 backdrop-blur-md">
+          <div className="flex items-center gap-2.5">
+            <h1 className="font-mono text-sm font-bold tracking-wider uppercase text-slate-900 dark:text-zinc-100">
+              {m.title}
+            </h1>
+            <span className="hidden font-mono text-xs text-slate-400 dark:text-zinc-500 sm:inline">
+              / {m.sub}
             </span>
           </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+          </div>
         </header>
-        <main className="flex-1 overflow-y-auto px-8 py-7">
+        <main className="flex-1 overflow-y-auto px-6 py-6 sm:px-8 sm:py-7">
           <div className="mx-auto w-full max-w-[1400px]">
             {view === "overview" && <Overview setView={setView} />}
             {view === "connections" && <Connections />}
@@ -80,18 +83,21 @@ export default function App() {
   const [authed, setAuthed] = useState(!!getToken());
   const qc = useQueryClient();
 
-  if (!authed) {
-    return (
-      <>
-        <TokenGate
-          onAuthed={() => {
-            qc.invalidateQueries();
-            setAuthed(true);
-          }}
-        />
-        <Toaster />
-      </>
-    );
-  }
-  return <Shell onDeauth={() => setAuthed(false)} />;
+  return (
+    <ThemeProvider>
+      {!authed ? (
+        <>
+          <TokenGate
+            onAuthed={() => {
+              qc.invalidateQueries();
+              setAuthed(true);
+            }}
+          />
+          <Toaster />
+        </>
+      ) : (
+        <Shell onDeauth={() => setAuthed(false)} />
+      )}
+    </ThemeProvider>
+  );
 }

@@ -39,20 +39,20 @@ function Kpi({
   color?: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#212637] bg-[#0d1017] p-4 text-white shadow-lg transition-transform hover:-translate-y-0.5 before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent">
+    <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 text-slate-900 shadow-sm transition-all hover:shadow-md dark:border-[#212637] dark:bg-[#0d1017] dark:text-white dark:shadow-lg before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-slate-200 dark:before:via-white/10 before:to-transparent">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
+        <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
           {label}
         </span>
-        <span className="grid size-7 place-items-center rounded-lg border border-[#262f42] bg-[#121622] text-zinc-300">
+        <span className="grid size-7 place-items-center rounded-lg border border-slate-200 bg-slate-50 text-slate-700 dark:border-[#262f42] dark:bg-[#121622] dark:text-zinc-300">
           <Icon className="size-3.5" />
         </span>
       </div>
       <div className="mt-3 flex items-baseline gap-1.5">
-        <span className="font-mono text-2xl lg:text-3xl font-extrabold tracking-tight tabular-nums text-white">
+        <span className="font-mono text-2xl lg:text-3xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">
           {value}
         </span>
-        {unit && <span className="font-mono text-xs font-semibold text-zinc-400">{unit}</span>}
+        {unit && <span className="font-mono text-xs font-semibold text-slate-500 dark:text-zinc-400">{unit}</span>}
       </div>
       <div className="mt-2 h-8 px-0.5">
         <Sparkline data={spark} color={color} />
@@ -120,13 +120,6 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
         workers={workers}
         metrics={metrics}
         rate={rate}
-        onSelectExit={() => setView("connections")}
-      />
-
-      {/* Per-Exit Activity Strip: Segmented-block matrix & live throughput shares */}
-      <ActivityStrip
-        workers={workers}
-        nowRate={nowRate}
         onSelectExit={() => setView("connections")}
       />
 

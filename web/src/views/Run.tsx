@@ -113,7 +113,7 @@ export function Run() {
         <CardHeader className="justify-between">
           <div className="flex items-center gap-2.5">
             <CardTitle>Fleet Command Execution</CardTitle>
-            <span className="rounded-full border border-sky-500/30 bg-sky-950/40 px-2.5 py-0.5 font-mono text-[11px] font-bold text-sky-400 tabular-nums">
+            <span className="rounded-full border border-sky-500/30 bg-sky-50 px-2.5 py-0.5 font-mono text-[11px] font-bold text-sky-700 tabular-nums dark:bg-sky-950/40 dark:text-sky-400">
               {online} {online === 1 ? "TARGET ONLINE" : "TARGETS ONLINE"}
             </span>
           </div>
@@ -128,7 +128,7 @@ export function Run() {
                 </option>
               ))}
             </Select>
-            <label className="flex items-center gap-2 font-mono text-xs text-zinc-400">
+            <label className="flex items-center gap-2 font-mono text-xs text-slate-500 dark:text-zinc-400">
               Timeout
               <input
                 type="number"
@@ -136,7 +136,7 @@ export function Run() {
                 max={3600}
                 value={timeout}
                 onChange={(e) => setTimeoutS(+e.target.value || 60)}
-                className="h-9 w-20 rounded-xl border border-[#232838] bg-[#090c12] px-2 text-xs text-zinc-200 font-mono tabular-nums"
+                className="h-9 w-20 rounded-xl border border-slate-200 bg-white px-2 text-xs text-slate-800 font-mono tabular-nums dark:border-[#232838] dark:bg-[#090c12] dark:text-zinc-200"
               />
               s
             </label>
@@ -151,7 +151,7 @@ export function Run() {
               onChange={(e) => setCmd(e.target.value)}
               spellCheck={false}
               placeholder="#!/bin/bash&#10;curl -s https://ifconfig.co/json"
-              className="min-h-[110px] font-mono text-xs leading-relaxed text-zinc-200"
+              className="min-h-[110px] font-mono text-xs leading-relaxed text-slate-900 dark:text-zinc-200"
               onKeyDown={(e) => {
                 if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                   e.preventDefault();

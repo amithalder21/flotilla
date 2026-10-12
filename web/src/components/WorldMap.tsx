@@ -125,9 +125,9 @@ export function WorldMap({
   return (
     <div className="relative w-full select-none">
       {/* Outer Tactical Radar Container */}
-      <div className="relative overflow-hidden rounded-xl border border-[#1f2638] bg-gradient-to-b from-[#080b12] via-[#0b0f18] to-[#080b12] p-2 shadow-inner">
+      <div className="relative overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100/60 p-2 shadow-inner dark:border-[#1f2638] dark:bg-gradient-to-b dark:from-[#080b12] dark:via-[#0b0f18] dark:to-[#080b12]">
         {/* Subtle Vignette & Grid Backdrop */}
-        <div className="pointer-events-none absolute inset-0 bg-radial-grid opacity-25" />
+        <div className="pointer-events-none absolute inset-0 bg-radial-grid opacity-15 dark:opacity-25" />
 
         <svg
           viewBox={`0 42 ${map.w} 356`}
@@ -150,28 +150,26 @@ export function WorldMap({
           </defs>
 
           {/* Coordinate Latitude Grid Parallels */}
-          <g stroke="#1a2233" strokeWidth="0.6" strokeDasharray="3 5" opacity="0.6">
+          <g className="stroke-slate-300 dark:stroke-[#1a2233]" strokeWidth="0.6" strokeDasharray="3 5" opacity="0.6">
             <line x1="0" y1="100" x2="1000" y2="100" />
             <line x1="0" y1="160" x2="1000" y2="160" />
-            <line x1="0" y1="220" x2="1000" y2="220" stroke="#25324b" strokeWidth="0.8" />
+            <line x1="0" y1="220" x2="1000" y2="220" strokeWidth="0.8" />
             <line x1="0" y1="280" x2="1000" y2="280" />
             <line x1="0" y1="340" x2="1000" y2="340" />
           </g>
 
           {/* Coordinate Longitude Grid Meridians */}
-          <g stroke="#1a2233" strokeWidth="0.6" strokeDasharray="3 5" opacity="0.6">
+          <g className="stroke-slate-300 dark:stroke-[#1a2233]" strokeWidth="0.6" strokeDasharray="3 5" opacity="0.6">
             <line x1="250" y1="42" x2="250" y2="398" />
-            <line x1="500" y1="42" x2="500" y2="398" stroke="#25324b" strokeWidth="0.8" />
+            <line x1="500" y1="42" x2="500" y2="398" strokeWidth="0.8" />
             <line x1="750" y1="42" x2="750" y2="398" />
           </g>
 
           {/* High-Contrast Landmass Polygons */}
           <path
             d={map.land}
-            fill="#101522"
-            stroke="#243149"
+            className="fill-slate-200 stroke-slate-300 transition-colors dark:fill-[#101522] dark:stroke-[#243149]"
             strokeWidth={0.85}
-            className="transition-colors"
           />
 
           {/* Located Egress Pins & Callout Badges */}
@@ -276,7 +274,7 @@ export function WorldMap({
         {/* Interactive Floating Hover HUD (shows details when hovering on marker) */}
         {activeGroup && (
           <div
-            className="pointer-events-none absolute z-30 flex flex-col gap-1.5 rounded-xl border border-sky-500/40 bg-[#090d15]/95 p-3.5 shadow-2xl backdrop-blur-md transition-all font-mono"
+            className="pointer-events-none absolute z-30 flex flex-col gap-1.5 rounded-xl border border-sky-500/40 bg-white/95 text-slate-900 shadow-2xl backdrop-blur-md transition-all font-mono dark:bg-[#090d15]/95 dark:text-zinc-100 p-3.5"
             style={{
               left: `${Math.min(Math.max((activeGroup.x / 1000) * 100, 15), 75)}%`,
               top: `${Math.min(Math.max(((activeGroup.y - 42) / 356) * 100, 20), 70)}%`,
@@ -285,14 +283,14 @@ export function WorldMap({
             }}
           >
             {/* HUD Header */}
-            <div className="flex items-center justify-between border-b border-[#1f2638] pb-1.5">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-1.5 dark:border-[#1f2638]">
               <div className="flex items-center gap-2">
-                <span className="rounded bg-sky-950/80 px-1.5 py-0.2 font-mono text-[10px] font-bold text-sky-400 border border-sky-700/50">
+                <span className="rounded bg-sky-100 px-1.5 py-0.2 font-mono text-[10px] font-bold text-sky-700 border border-sky-300 dark:bg-sky-950/80 dark:text-sky-400 dark:border-sky-700/50">
                   {activeGroup.iso.toUpperCase()}
                 </span>
-                <span className="font-bold text-zinc-100 text-xs">{activeGroup.country}</span>
+                <span className="font-bold text-slate-900 text-xs dark:text-zinc-100">{activeGroup.country}</span>
               </div>
-              <span className="text-[10px] text-emerald-400 font-semibold">
+              <span className="text-[10px] text-emerald-600 font-semibold dark:text-emerald-400">
                 {activeGroup.online}/{activeGroup.count} ACTIVE
               </span>
             </div>
@@ -300,95 +298,45 @@ export function WorldMap({
             {/* Tunnel Nodes List */}
             <div className="space-y-1 py-1 text-2xs">
               {activeGroup.workers.slice(0, 4).map((w) => (
-                <div key={w.name} className="flex items-center justify-between text-zinc-300">
+                <div key={w.name} className="flex items-center justify-between text-slate-600 dark:text-zinc-300">
                   <span className="flex items-center gap-1.5">
-                    <span className="size-1.5 rounded-full bg-emerald-400" />
-                    <span className="font-bold text-white">{w.name}</span>
+                    <span className="size-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
+                    <span className="font-bold text-slate-900 dark:text-white">{w.name}</span>
                   </span>
-                  <span className="text-zinc-500">
+                  <span className="text-slate-400 dark:text-zinc-500">
                     {w.proxy?.port ? `:${w.proxy.port}` : "Wire"}
                   </span>
                 </div>
               ))}
               {activeGroup.workers.length > 4 && (
-                <div className="text-3xs text-zinc-500">
+                <div className="text-3xs text-slate-400 dark:text-zinc-500">
                   +{activeGroup.workers.length - 4} more exit nodes
                 </div>
               )}
             </div>
 
             {/* Bottom HUD Stats */}
-            <div className="flex items-center justify-between border-t border-[#1f2638] pt-1.5 text-[10px] text-zinc-400">
-              <span>Transferred: <strong className="text-zinc-200">{fmtBytes(activeGroup.totalBytes)}</strong></span>
-              <span className="text-emerald-400">Zero Leaks</span>
+            <div className="flex items-center justify-between border-t border-slate-200 pt-1.5 text-[10px] text-slate-500 dark:border-[#1f2638] dark:text-zinc-400">
+              <span>Transferred: <strong className="text-slate-800 dark:text-zinc-200">{fmtBytes(activeGroup.totalBytes)}</strong></span>
+              <span className="text-emerald-600 dark:text-emerald-400">Zero Leaks</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Interactive Region Cards Strip (below map) */}
-      <div className="mt-3.5 space-y-2">
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-zinc-400">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" /> Active Egress
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full bg-zinc-600" /> Offline / Standby
-            </span>
-          </div>
-          <span className="font-bold text-zinc-300 tabular-nums">
-            {located.length} {located.length === 1 ? "GEOGRAPHIC REGION" : "GEOGRAPHIC REGIONS"} ACTIVE
+      {/* Map Legend Footer */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-500 dark:text-zinc-400">
+        <div className="flex items-center gap-4">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-emerald-500 dark:bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.8)]" /> Active Egress
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2 rounded-full bg-slate-300 dark:bg-zinc-600" /> Offline / Standby
           </span>
         </div>
-
-        {/* Region Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1">
-          {located.map((g) => {
-            const isHovered = hoveredIso === g.iso;
-            return (
-              <div
-                key={g.iso}
-                onMouseEnter={() => setHoveredIso(g.iso)}
-                onMouseLeave={() => setHoveredIso(null)}
-                className={cn(
-                  "group flex items-center justify-between rounded-xl border p-3 font-mono transition-all duration-200 cursor-pointer",
-                  isHovered
-                    ? "border-sky-500/50 bg-[#0e1422] shadow-[0_0_12px_rgba(56,189,248,0.15)]"
-                    : "border-[#1c2230] bg-[#0c1017] hover:border-[#2b3548] hover:bg-[#10141f]"
-                )}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <span className={cn(
-                    "rounded px-2 py-0.5 text-xs font-bold uppercase shrink-0 border",
-                    isHovered
-                      ? "border-sky-500/50 bg-sky-950/60 text-sky-300"
-                      : "border-[#232a3b] bg-[#141822] text-zinc-300"
-                  )}>
-                    {g.iso.toUpperCase()}
-                  </span>
-                  <div className="flex flex-col min-w-0">
-                    <span className="truncate text-xs font-bold text-zinc-200 group-hover:text-white">
-                      {g.country}
-                    </span>
-                    <span className="truncate text-[10.5px] text-zinc-500">
-                      {g.workers.map((w) => w.name).join(", ")}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end shrink-0 pl-2 text-right">
-                  <span className="text-xs font-bold text-emerald-400 tabular-nums">
-                    {g.online} {g.online === 1 ? "tunnel" : "tunnels"}
-                  </span>
-                  <span className="text-[10px] text-zinc-500 tabular-nums">
-                    {fmtBytes(g.totalBytes)}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <span className="font-semibold text-slate-700 dark:text-zinc-300 tabular-nums">
+          {located.length} {located.length === 1 ? "GEOGRAPHIC REGION" : "GEOGRAPHIC REGIONS"} ACTIVE
+        </span>
       </div>
     </div>
   );
