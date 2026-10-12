@@ -6,7 +6,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div>
       <SectionLabel className="mb-1.5">{title}</SectionLabel>
-      <pre className="max-h-[46vh] overflow-auto whitespace-pre-wrap break-words rounded-lg border border-border bg-muted/60 px-3 py-2.5 font-mono text-[12px] leading-relaxed text-foreground">
+      <pre className="max-h-[46vh] overflow-auto whitespace-pre-wrap break-words rounded-xl border border-[#1f2638] bg-[#06080d] p-3.5 font-mono text-[12px] leading-relaxed text-zinc-200">
         {children}
       </pre>
     </div>

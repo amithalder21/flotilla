@@ -115,7 +115,7 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Signature Fleet Hero: Plexo-inspired control plane fan-out, throughput stats, and stacked chart */}
+      {/* Signature Fleet Hero: Multi-egress topology dispatch, aggregate throughput, and stacked traffic chart */}
       <FleetHero
         workers={workers}
         metrics={metrics}

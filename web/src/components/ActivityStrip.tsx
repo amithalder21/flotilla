@@ -38,8 +38,8 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
     return `${kb.toFixed(1)} KB/s`;
   };
 
-  // Generate 56 blocks (2 rows × 28) representing Plexo's segmented chunk blocks
-  // Live pulse tick to simulate active chunks streaming through
+  // Generate 56 blocks (2 rows × 28) representing real-time traffic slices across active exits
+  // Live pulse tick to simulate active traffic streams flowing through
   const [pulseTick, setPulseTick] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,9 +110,9 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
         <div className="flex items-center gap-2">
           <Activity className="size-4 text-emerald-400" />
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-zinc-300">
-            Per-Exit Activity Matrix
+            Fleet Egress Traffic Distribution
           </span>
-          <span className="text-[11px] text-zinc-500 font-mono">· 56 Chunk Slots</span>
+          <span className="text-[11px] text-zinc-500 font-mono">· Real-Time Slices</span>
         </div>
 
         {/* Legend row */}
@@ -132,7 +132,7 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
         </div>
       </div>
 
-      {/* The Plexo Segmented-Block Matrix (2 rows x 28 columns) */}
+      {/* Segmented-Block Matrix (2 rows x 28 columns) */}
       <div className="py-4">
         <div className="grid grid-cols-14 sm:grid-cols-28 gap-1.5">
           {blocks.map((block, i) => {
@@ -142,7 +142,7 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
               return (
                 <div
                   key={i}
-                  title={`${block.workerName} · active slice #${i + 1}`}
+                  title={`${block.workerName} · active egress traffic slice #${i + 1}`}
                   className="h-3.5 w-full rounded-[3px] transition-all duration-300 hover:scale-110"
                   style={{
                     backgroundColor: pal.hex,
@@ -156,7 +156,7 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
               return (
                 <div
                   key={i}
-                  title={`${block.workerName} · verified slice #${i + 1}`}
+                  title={`${block.workerName} · verified tunnel stream #${i + 1}`}
                   className="h-3.5 w-full rounded-[3px] transition-all duration-300 hover:scale-110"
                   style={{
                     border: `1.5px solid ${pal.hex}bb`,
@@ -178,12 +178,12 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
         </div>
       </div>
 
-      {/* Per-Exit Breakdown Table (Plexo Networks Table equivalent) */}
+      {/* Per-Exit Breakdown Table */}
       <div className="mt-2 flex flex-col border-t border-[#1f2433] pt-3">
         <div className="mb-2 flex items-center justify-between text-2xs font-mono font-semibold uppercase tracking-wider text-zinc-500">
-          <span>EXIT ENDPOINTS</span>
+          <span>ACTIVE EGRESS NODES</span>
           <span>
-            {activeWorkers.length} Merged · {activeWorkers.length * 4} Streams · {activeWorkers.length} Active
+            {activeWorkers.length} {activeWorkers.length === 1 ? "Active Tunnel" : "Active Tunnels"} · {activeWorkers.length} HTTP Proxy Sockets · 0 Leaks
           </span>
         </div>
 
@@ -221,7 +221,7 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
                       )}
                     </div>
                     <span className="text-[10px] text-zinc-500 font-mono">
-                      {w.proxy?.port ? `Proxy :${w.proxy.port}` : "Direct Wire"} · 4 streams
+                      {w.proxy?.port ? `HTTP Proxy :${w.proxy.port}` : "Direct Tunnel"} · {w.vpn === "running" ? "Connected" : "Disconnected"}
                     </span>
                   </div>
                 </div>
@@ -248,14 +248,14 @@ export function ActivityStrip({ workers, nowRate, onSelectExit }: ActivityStripP
                     <span className={cn("font-mono text-xs font-bold tabular-nums", pal.text)}>
                       {formatSpeed(estSpeed)}
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase">Speed</span>
+                    <span className="text-[10px] text-zinc-500 font-mono uppercase">Bandwidth</span>
                   </div>
 
                   <div className="flex flex-col items-end min-w-[75px]">
                     <span className="font-mono text-xs font-medium text-zinc-300 tabular-nums">
                       {fmtBytes(workerBytes)}
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase">Moved</span>
+                    <span className="text-[10px] text-zinc-500 font-mono uppercase">Transferred</span>
                   </div>
                 </div>
               </div>

@@ -76,13 +76,12 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
   const avgSpeedFormatted = formatSpeedSplit(avgRate);
   const peakSpeedFormatted = formatSpeedSplit(peakRate);
 
-  // Multiplier / Concurrency badge calculation
+  // Fleet capacity badge calculation
   const multiplierText = useMemo(() => {
     const count = onlineWorkers.length;
-    if (count <= 1) return "1.0× SINGLE EXIT EQUIVALENT";
-    // Realistic multi-egress concurrency multiplier
-    const factor = (count * 0.92).toFixed(1);
-    return `${factor}× MULTI-EGRESS MULTIPLIER ⇄`;
+    if (count === 0) return "NO ACTIVE TUNNELS";
+    if (count === 1) return "1 ACTIVE EGRESS TUNNEL";
+    return `${count}× AGGREGATE EGRESS CAPACITY ⇄`;
   }, [onlineWorkers]);
 
   // Distribute estimated throughput per worker for visual cues
@@ -118,17 +117,17 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
       {/* Top subtle sheen */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       
-      {/* Top Header Row (Plexo Window Bar Style) */}
+      {/* Top Header Row (Hardware Console Style) */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1f2433] px-5 py-3 text-xs">
         <div className="flex items-center gap-2.5">
-          {/* macOS subtle traffic lights */}
+          {/* subtle hardware status indicators */}
           <div className="flex items-center gap-1.5 opacity-70">
             <span className="size-2.5 rounded-full bg-[#ff5f56]" />
             <span className="size-2.5 rounded-full bg-[#ffbd2e]" />
             <span className="size-2.5 rounded-full bg-[#27c93f]" />
           </div>
           <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-zinc-400">
-            Flotilla Fleet Core
+            Flotilla Fleet Controller
           </span>
         </div>
 
@@ -139,7 +138,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
             <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
           </span>
           <span>
-            {onlineWorkers.length} {onlineWorkers.length === 1 ? "NETWORK MERGED" : "NETWORKS MERGED"}
+            {onlineWorkers.length} {onlineWorkers.length === 1 ? "TUNNEL CONVERGED" : "TUNNELS CONVERGED"}
           </span>
         </div>
       </div>
@@ -152,10 +151,10 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
         <div className="relative flex flex-col justify-center lg:col-span-5">
           <div className="mb-2 flex items-center justify-between text-[11px] font-medium uppercase tracking-wider text-zinc-400">
             <span className="flex items-center gap-1.5">
-              <Network className="size-3.5 text-zinc-400" /> Control Plane Fan-Out
+              <Network className="size-3.5 text-zinc-400" /> Multi-Egress Dispatch
             </span>
             <span className="font-mono text-[10px] text-zinc-400">
-              {displayedWorkers.length} Active Spokes
+              {displayedWorkers.length} {displayedWorkers.length === 1 ? "Active Tunnel" : "Active Tunnels"}
             </span>
           </div>
 
@@ -299,7 +298,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
         {/* ======================================================== */}
         <div className="flex flex-col items-start justify-center border-y border-[#1f2433] py-4 lg:col-span-3 lg:border-x lg:border-y-0 lg:px-6">
           <div className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-            TOTAL SPEED
+            FLEET THROUGHPUT
           </div>
 
           <div className="mt-1 flex items-baseline gap-2">
@@ -335,14 +334,14 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
         <div className="flex flex-col justify-center lg:col-span-4">
           <div className="mb-2 flex items-center justify-between">
             <span className="font-mono text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-              THROUGHPUT · LAST 30S
+              LIVE TRAFFIC · LAST 30S
             </span>
             <div className="flex items-center gap-3 font-mono text-[10px] text-zinc-400">
               <span className="inline-flex items-center gap-1">
-                <span className="size-2 rounded-full bg-emerald-400" /> RX
+                <span className="size-2 rounded-full bg-emerald-400" /> INGRESS (RX)
               </span>
               <span className="inline-flex items-center gap-1">
-                <span className="size-2 rounded-full bg-amber-400" /> TX
+                <span className="size-2 rounded-full bg-amber-400" /> EGRESS (TX)
               </span>
             </div>
           </div>
@@ -352,11 +351,11 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartPoints} margin={{ top: 4, right: 2, bottom: 0, left: -24 }}>
                 <defs>
-                  <linearGradient id="plexoRxGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="fleetRxGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#10b981" stopOpacity="0.45" />
                     <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                   </linearGradient>
-                  <linearGradient id="plexoTxGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="fleetTxGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.38" />
                     <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.0" />
                   </linearGradient>
@@ -373,7 +372,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                   }}
                   formatter={(value: number, name) => [
                     `${fmtBytes(value)}/s`,
-                    name === "rx" ? "Download (RX)" : "Upload (TX)",
+                    name === "rx" ? "Ingress Traffic (RX)" : "Egress Traffic (TX)",
                   ]}
                   labelFormatter={() => ""}
                 />
@@ -382,7 +381,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                   dataKey="rx"
                   stroke="#10b981"
                   strokeWidth={2}
-                  fill="url(#plexoRxGradient)"
+                  fill="url(#fleetRxGradient)"
                   isAnimationActive={false}
                 />
                 <Area
@@ -390,7 +389,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                   dataKey="tx"
                   stroke="#f59e0b"
                   strokeWidth={2}
-                  fill="url(#plexoTxGradient)"
+                  fill="url(#fleetTxGradient)"
                   isAnimationActive={false}
                 />
               </AreaChart>
@@ -400,13 +399,13 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
           {/* Bottom Live Data summary */}
           <div className="mt-2 flex items-center justify-between font-mono text-[10.5px] text-zinc-400 tabular-nums">
             <span>
-              RX <strong className="text-emerald-400">{fmtBytes(rxRate)}/s</strong>
+              INGRESS <strong className="text-emerald-400">{fmtBytes(rxRate)}/s</strong>
             </span>
             <span>
-              TX <strong className="text-amber-400">{fmtBytes(txRate)}/s</strong>
+              EGRESS <strong className="text-amber-400">{fmtBytes(txRate)}/s</strong>
             </span>
             <span className="text-zinc-400">
-              AGG <strong className="text-zinc-200">{fmtBytes(totalRate)}/s</strong>
+              FLEET TOTAL <strong className="text-zinc-200">{fmtBytes(totalRate)}/s</strong>
             </span>
           </div>
         </div>
