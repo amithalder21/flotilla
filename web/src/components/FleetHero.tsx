@@ -105,12 +105,12 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
     return recent;
   }, [rate, rxRate, txRate]);
 
-  // Diagram geometry
-  const svgHeight = Math.max(displayedWorkers.length * 48 + 36, 160);
-  const svgWidth = 360;
-  const startX = 28;
+  // Diagram geometry: dedicated laser canvas with adjacent node badges
+  const svgHeight = Math.max(displayedWorkers.length * 44 + 32, 160);
+  const svgWidth = 160;
+  const startX = 20;
   const startY = svgHeight / 2;
-  const targetX = svgWidth - 14;
+  const targetX = svgWidth - 10;
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#232838] bg-[#0d1017] text-white shadow-2xl">
@@ -158,104 +158,106 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
             </span>
           </div>
 
-          <div className="relative flex items-center justify-between">
-            {/* SVG Connecting Links with Animated Throughput Pulses */}
-            <svg
-              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="w-full select-none"
-              style={{ height: svgHeight }}
-            >
-              <defs>
-                <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-                <linearGradient id="hubGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#1d4ed8" />
-                </linearGradient>
-              </defs>
+          <div className="flex items-center gap-3">
+            {/* Left: SVG Connecting Links with Animated Throughput Pulses */}
+            <div className="w-[140px] sm:w-[160px] shrink-0">
+              <svg
+                viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                className="w-full select-none"
+                style={{ height: svgHeight }}
+              >
+                <defs>
+                  <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                  <linearGradient id="hubGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#1d4ed8" />
+                  </linearGradient>
+                </defs>
 
-              {/* Fan-Out Bezier Curves to each exit */}
-              {displayedWorkers.map((w, i) => {
-                const palette = EXIT_PALETTE[i % EXIT_PALETTE.length];
-                const destY =
-                  displayedWorkers.length === 1
-                    ? svgHeight / 2
-                    : 24 + i * ((svgHeight - 48) / (displayedWorkers.length - 1));
+                {/* Fan-Out Bezier Curves to each exit */}
+                {displayedWorkers.map((w, i) => {
+                  const palette = EXIT_PALETTE[i % EXIT_PALETTE.length];
+                  const destY =
+                    displayedWorkers.length === 1
+                      ? svgHeight / 2
+                      : 22 + i * ((svgHeight - 44) / (displayedWorkers.length - 1));
 
-                const controlX1 = startX + (targetX - startX) * 0.45;
-                const controlX2 = startX + (targetX - startX) * 0.55;
-                const pathD = `M ${startX} ${startY} C ${controlX1} ${startY}, ${controlX2} ${destY}, ${targetX} ${destY}`;
+                  const controlX1 = startX + (targetX - startX) * 0.45;
+                  const controlX2 = startX + (targetX - startX) * 0.55;
+                  const pathD = `M ${startX} ${startY} C ${controlX1} ${startY}, ${controlX2} ${destY}, ${targetX} ${destY}`;
 
-                return (
-                  <g key={w.name}>
-                    {/* Underlying static trace line */}
-                    <path
-                      d={pathD}
-                      fill="none"
-                      stroke={palette.hex}
-                      strokeWidth="1.75"
-                      strokeOpacity="0.22"
-                      strokeDasharray="4 4"
-                    />
+                  return (
+                    <g key={w.name}>
+                      {/* Underlying static trace line */}
+                      <path
+                        d={pathD}
+                        fill="none"
+                        stroke={palette.hex}
+                        strokeWidth="1.75"
+                        strokeOpacity="0.22"
+                        strokeDasharray="4 4"
+                      />
 
-                    {/* Active throughput flowing laser beam */}
-                    <path
-                      d={pathD}
-                      fill="none"
-                      stroke={palette.hex}
-                      strokeWidth="2.2"
-                      strokeDasharray="8 20"
-                      className="animate-flow-dash"
-                      style={{
-                        filter: `drop-shadow(0 0 4px ${palette.hex})`,
-                        animationDuration: totalRate > 500000 ? "1s" : "2s",
-                      }}
-                    />
+                      {/* Active throughput flowing laser beam */}
+                      <path
+                        d={pathD}
+                        fill="none"
+                        stroke={palette.hex}
+                        strokeWidth="2.2"
+                        strokeDasharray="8 20"
+                        className="animate-flow-dash"
+                        style={{
+                          filter: `drop-shadow(0 0 4px ${palette.hex})`,
+                          animationDuration: totalRate > 500000 ? "1s" : "2s",
+                        }}
+                      />
 
-                    {/* Exit Node Pin on the right end */}
-                    <circle
-                      cx={targetX}
-                      cy={destY}
-                      r="4"
-                      fill={palette.hex}
-                      style={{ filter: `drop-shadow(0 0 5px ${palette.hex})` }}
-                    />
-                  </g>
-                );
-              })}
+                      {/* Exit Node Pin on the right end */}
+                      <circle
+                        cx={targetX}
+                        cy={destY}
+                        r="3.5"
+                        fill={palette.hex}
+                        style={{ filter: `drop-shadow(0 0 5px ${palette.hex})` }}
+                      />
+                    </g>
+                  );
+                })}
 
-              {/* Central Control Hub Node on the left */}
-              <g transform={`translate(${startX}, ${startY})`}>
-                {/* Pulsing radar rings */}
-                <circle
-                  cx="0"
-                  cy="0"
-                  r="14"
-                  fill="none"
-                  stroke="#38bdf8"
-                  strokeWidth="1"
-                  strokeOpacity="0.3"
-                  className="animate-ping"
-                  style={{ animationDuration: "3s" }}
-                />
-                <circle
-                  cx="0"
-                  cy="0"
-                  r="10"
-                  fill="#0e1726"
-                  stroke="#38bdf8"
-                  strokeWidth="2"
-                  style={{ filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.7))" }}
-                />
-                <circle cx="0" cy="0" r="4.5" fill="#38bdf8" />
-              </g>
-            </svg>
+                {/* Central Control Hub Node on the left */}
+                <g transform={`translate(${startX}, ${startY})`}>
+                  {/* Pulsing radar rings */}
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r="13"
+                    fill="none"
+                    stroke="#38bdf8"
+                    strokeWidth="1"
+                    strokeOpacity="0.3"
+                    className="animate-ping"
+                    style={{ animationDuration: "3s" }}
+                  />
+                  <circle
+                    cx="0"
+                    cy="0"
+                    r="9"
+                    fill="#0e1726"
+                    stroke="#38bdf8"
+                    strokeWidth="2"
+                    style={{ filter: "drop-shadow(0 0 6px rgba(56, 189, 248, 0.7))" }}
+                  />
+                  <circle cx="0" cy="0" r="4" fill="#38bdf8" />
+                </g>
+              </svg>
+            </div>
 
-            {/* Exit Nodes Detail Badges (Right side overlay / column) */}
+            {/* Right: Exit Nodes Detail Badges (Dedicated column, no text/laser overlap) */}
             <div
-              className="absolute right-0 top-0 flex flex-col justify-between py-2 text-right"
+              className="flex flex-1 flex-col justify-between py-1"
               style={{ height: svgHeight }}
             >
               {displayedWorkers.map((w, i) => {
@@ -269,23 +271,25 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
                   <div
                     key={w.name}
                     onClick={() => onSelectExit?.(w.name)}
-                    className="group flex cursor-pointer items-center justify-end gap-2 text-right transition-transform hover:-translate-x-1"
+                    className="group flex cursor-pointer items-center justify-between gap-2 rounded-lg border border-[#1a2130] bg-[#0c1018]/90 px-2.5 py-1 transition-all hover:border-[#2a354c] hover:bg-[#121722]"
                   >
-                    <div className="flex flex-col items-end leading-tight">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[11px] font-bold text-zinc-200 group-hover:text-white">
-                          {w.name}
-                        </span>
-                        {w.ipinfo?.country_iso && (
-                          <span className="rounded bg-[#1a202c] px-1 py-0.2 font-mono text-[9px] font-semibold uppercase tracking-wider text-zinc-400">
-                            {w.ipinfo.country_iso}
-                          </span>
-                        )}
-                      </div>
-                      <span className={cn("font-mono text-[10.5px] tabular-nums font-semibold", palette.text)}>
-                        {speedStr.val} {speedStr.unit}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className="size-1.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: palette.hex, boxShadow: `0 0 6px ${palette.hex}` }}
+                      />
+                      <span className="truncate font-mono text-[11px] font-bold text-zinc-200 group-hover:text-white">
+                        {w.name}
                       </span>
+                      {w.ipinfo?.country_iso && (
+                        <span className="shrink-0 rounded bg-[#18202e] px-1 py-0.2 font-mono text-[9px] font-bold uppercase text-zinc-400">
+                          {w.ipinfo.country_iso}
+                        </span>
+                      )}
                     </div>
+                    <span className={cn("shrink-0 font-mono text-[10.5px] tabular-nums font-semibold", palette.text)}>
+                      {speedStr.val} {speedStr.unit}
+                    </span>
                   </div>
                 );
               })}
@@ -301,17 +305,17 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
             FLEET THROUGHPUT
           </div>
 
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-5xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_18px_rgba(255,255,255,0.15)]">
+          <div className="mt-1 flex items-baseline gap-2 whitespace-nowrap">
+            <span className="font-mono text-4xl xl:text-5xl font-black tracking-tight text-white tabular-nums drop-shadow-[0_0_18px_rgba(255,255,255,0.15)]">
               {totalSpeedFormatted.val}
             </span>
-            <span className="font-mono text-sm font-semibold text-zinc-400">
+            <span className="font-mono text-xs xl:text-sm font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap shrink-0">
               {totalSpeedFormatted.unit}
             </span>
           </div>
 
           {/* Sub Stats: AVG & PEAK */}
-          <div className="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-zinc-400 tabular-nums">
+          <div className="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-zinc-400 tabular-nums whitespace-nowrap">
             <span>
               AVG <strong className="text-zinc-200">{avgSpeedFormatted.val} {avgSpeedFormatted.unit}</strong>
             </span>
@@ -322,7 +326,7 @@ export function FleetHero({ workers, metrics, rate, onSelectExit }: FleetHeroPro
           </div>
 
           {/* Concurrency Multiplier Pill */}
-          <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[#1f3e30] bg-[#0c2219] px-2.5 py-1 text-[11px] font-mono font-semibold tracking-wide text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.12)]">
+          <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-[#1f3e30] bg-[#0c2219] px-2.5 py-1 text-[11px] font-mono font-semibold tracking-wide text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.12)] whitespace-nowrap">
             <Zap className="size-3.5 text-emerald-400 shrink-0" />
             <span>{multiplierText}</span>
           </div>

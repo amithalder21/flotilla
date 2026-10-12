@@ -132,20 +132,22 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Kpi label="Connections" icon={Server} value={workers.length} spark={metrics.map((m) => m.conns)} />
-        <Kpi label="Online" icon={Radio} value={connected.length} spark={metrics.map((m) => m.healthy)} color="hsl(var(--ok))" />
-        <Kpi label="Regions" icon={Globe2} value={countries} spark={metrics.map((m) => m.countries)} color="hsl(var(--accent))" />
-        <Kpi label="Data moved" icon={Waves} value={fmtBytes(totalData)} spark={rate.map((r) => r.rx + r.tx)} color="hsl(var(--accent))" />
+        <Kpi label="Fleet Profiles" icon={Server} value={workers.length} spark={metrics.map((m) => m.conns)} />
+        <Kpi label="Online Tunnels" icon={Radio} value={connected.length} spark={metrics.map((m) => m.healthy)} color="#10b981" />
+        <Kpi label="Active Regions" icon={Globe2} value={countries} spark={metrics.map((m) => m.countries)} color="#38bdf8" />
+        <Kpi label="Fleet Data Moved" icon={Waves} value={fmtBytes(totalData)} spark={rate.map((r) => r.rx + r.tx)} color="#818cf8" />
       </div>
 
       {/* World Map */}
       <Card>
-        <CardHeader>
-          <CardTitle>Exit map</CardTitle>
-          <CardSub>where your tunnels egress</CardSub>
+        <CardHeader className="justify-between">
+          <div>
+            <CardTitle>Global Egress Topography</CardTitle>
+            <CardSub>Live geographic distribution &amp; tunnel endpoints</CardSub>
+          </div>
         </CardHeader>
         <CardBody>
-          <WorldMap workers={workers} />
+          <WorldMap workers={workers} onSelectExit={() => setView("connections")} />
         </CardBody>
       </Card>
 
@@ -153,30 +155,31 @@ export function Overview({ setView }: { setView: (v: ViewId) => void }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Fleet status</CardTitle>
+            <CardTitle>Fleet Health Distribution</CardTitle>
+            <CardSub>Real-time tunnel daemon states</CardSub>
           </CardHeader>
           <CardBody>
             {workers.length ? (
               <Donut
                 slices={[
-                  { label: "Connected", value: buckets.connected, color: "hsl(var(--ok))" },
-                  { label: "Connecting", value: buckets.connecting, color: "hsl(var(--warn))" },
-                  { label: "Needs attention", value: buckets.attention, color: "hsl(var(--bad))" },
-                  { label: "Stopped", value: buckets.stopped, color: "hsl(var(--muted-foreground))" },
+                  { label: "Connected", value: buckets.connected, color: "#10b981" },
+                  { label: "Connecting", value: buckets.connecting, color: "#f59e0b" },
+                  { label: "Needs attention", value: buckets.attention, color: "#f43f5e" },
+                  { label: "Stopped", value: buckets.stopped, color: "#475569" },
                 ]}
               />
             ) : (
-              <EmptyState>No connections yet.</EmptyState>
+              <EmptyState>No connections configured.</EmptyState>
             )}
           </CardBody>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Data by exit</CardTitle>
-            <CardSub>top 8 · cumulative</CardSub>
+            <CardTitle>Data Moved by Exit</CardTitle>
+            <CardSub>Top 8 egress tunnels · cumulative</CardSub>
           </CardHeader>
           <CardBody>
-            {barRows.length ? <HBars rows={barRows} /> : <EmptyState>No traffic yet.</EmptyState>}
+            {barRows.length ? <HBars rows={barRows} /> : <EmptyState>No traffic moved yet.</EmptyState>}
           </CardBody>
         </Card>
       </div>

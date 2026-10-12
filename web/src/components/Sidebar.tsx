@@ -43,7 +43,7 @@ export function Sidebar({
   }[connState.kind];
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[248px] shrink-0 flex-col border-r border-[#1a1f2c] bg-[#07090e] text-white">
+    <aside className="flex h-full w-[248px] shrink-0 flex-col border-r border-[#1a1f2c] bg-[#07090e] text-white">
       {/* Brand Header */}
       <div className="flex items-center gap-3 px-5 pb-4 pt-5 border-b border-[#141822]">
         <span className="grid size-8 place-items-center rounded-xl bg-emerald-950/60 text-emerald-400 ring-1 ring-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]">

@@ -45,10 +45,10 @@ function Shell({ onDeauth }: { onDeauth: () => void }) {
   const m = META[view];
 
   return (
-    <div className="flex min-h-screen bg-[#080a0f] text-zinc-100">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#080a0f] text-zinc-100">
       <Sidebar view={view} setView={setView} issues={issues} connState={connState} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-[58px] items-center justify-between border-b border-[#1a1f2d] bg-[#080a0f]/85 px-8 backdrop-blur-xl">
+      <div className="flex min-w-0 flex-1 flex-col h-full overflow-hidden">
+        <header className="shrink-0 z-20 flex h-[58px] items-center justify-between border-b border-[#1a1f2d] bg-[#080a0f] px-8">
           <div className="flex items-center gap-3">
             <h1 className="font-mono text-sm font-bold tracking-wider uppercase text-zinc-100">{m.title}</h1>
             <span className="hidden font-mono text-xs text-zinc-500 sm:inline">/ {m.sub}</span>
@@ -59,14 +59,16 @@ function Shell({ onDeauth }: { onDeauth: () => void }) {
             </span>
           </div>
         </header>
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-8 py-7">
-          {view === "overview" && <Overview setView={setView} />}
-          {view === "connections" && <Connections />}
-          {view === "run" && <Run />}
-          {view === "probe" && <Probe />}
-          {view === "schedules" && <Schedules />}
-          {view === "activity" && <Activity />}
-          {view === "settings" && <Settings />}
+        <main className="flex-1 overflow-y-auto px-8 py-7">
+          <div className="mx-auto w-full max-w-[1400px]">
+            {view === "overview" && <Overview setView={setView} />}
+            {view === "connections" && <Connections />}
+            {view === "run" && <Run />}
+            {view === "probe" && <Probe />}
+            {view === "schedules" && <Schedules />}
+            {view === "activity" && <Activity />}
+            {view === "settings" && <Settings />}
+          </div>
         </main>
       </div>
       <Toaster />
